@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <NewOrdList ListID="14" BidTyp="1" TotNoOrds="2">
+        <Hdr SndgTm="2005-09-08T15:51:22" SeqNum="200">
+            <!-- yikes, this is broken -->
+            <Snd ID="INST"/>
+            <Tgt ID="BROK"/>
+        </Hdr>
+        <Ord ClOrdID="order-1" ListSeqNo="1" Side="2" OrdTyp="1"/>
+        <Instrmt Sym="IBM"/>
+        <OrdQty Qty="2000"/>
+        <Ord ClOrdID="order-2" ListSeqNo="2" Side="2" OrdTyp="1"/>
+        <Instrmt Sym="AOL"/>
+        <OrdQty Qty="1000"/>
+    </NewOrdList>
+</FIXML>

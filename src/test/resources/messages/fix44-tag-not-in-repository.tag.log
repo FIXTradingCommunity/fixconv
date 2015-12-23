@@ -1,0 +1,3 @@
+org.fixprotocol.contrib.converter.FixConvException: unknown field (tag=999), at byte position 65
+	at org.fixprotocol.contrib.converter.FixConv.bytesToFixTagMessage(FixConv.java:1166)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:245)

@@ -1,0 +1,38 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <News Headline="HEADLINE">
+        <Hdr SID="SENDER" SeqNum="2" Snt="2011-03-29T12:00:00" TID="TARGET" MsgEncd="UTF-8"/>
+        <TxtLn Txt="TEXT" EncTxt="€ is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC"/>
+    </News>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagMessage News
+        {
+        addTag (header) 8=FIX.4.4
+        addTag (header) 9
+        addTag (header) 35=B
+        xmlToTagComponent StandardHeader
+            {
+            addTag SID 49=SENDER
+            addTag TID 56=TARGET
+            addTag SeqNum 34=2
+            addTag Snt 52=20110329-12:00:00
+            addTag MsgEncd 347=UTF-8
+            }
+        addTag Headline 148=HEADLINE
+        addTag (no) 33
+        xmlToTagRepeatingGroup 
+            {
+            addTag Txt 58=TEXT
+            addTag (length) 354=77
+            addTag EncTxt 355=\xe2\x82\xac is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC
+            }
+        addTag (trailer) 10=119
+        }
+    }
+=== Output tag=value message 1
+8=FIX.4.4\x019=176\x0135=B\x0149=SENDER\x0156=TARGET\x0134=2\x0152=20110329-12:00:00\x01347=UTF-8\x01148=HEADLINE\x0133=1\x0158=TEXT\x01354=77\x01355=\xe2\x82\xac is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC\x0110=119\x01

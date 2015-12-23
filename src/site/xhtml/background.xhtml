@@ -1,0 +1,208 @@
+<html>
+  <head>
+    <title>FIX Converter</title>
+  </head>
+  <body>
+
+    <h1>Background</h1>
+
+    <p>This code is an attempt to create a <b>reference implementation</b>
+    of the translation between tag=value and FIXML.
+    It attempts to correctly convert valid messages, but it doesn't pay
+    detailed attention to what is valid and what is not.
+    It will spot and reject certain invalid messages, but not all (use the
+    FIXML XSDs to confirm the validity of the message).
+    It is not performance optimised, but does use appropriate datastructures
+    (such as hash maps) to avoid obvious problems.</p>
+
+<!--...sFIX definition:4:-->
+<h2>FIX definition</h2>
+
+<p>The definition of the FIX protocol is held in the <b>FIX Repository</b>,
+and recently (as of 2009 onwards) there has been a new and easier to use
+version of this known as the <b>Unified FIX Repository</b>.
+This is known to be the strategic direction.</p>
+
+<p>Vendor supplied tools can import, amend and export this format.
+They can also generate FIXML XSD schemas from it.</p>
+
+<p>The Unified FIX Repository is therefore the ideal configuration from which
+to drive FIX tools, such as this FIX Converter (and indeed, an earlier attempt
+to write a FIX Converter driven off of the FIXML XSDs failed when it was
+realised that information relating to repeating groups and other areas is
+missing).</p>
+<!--...e-->
+<!--...sFIX representations:4:-->
+<h2>FIX representations</h2>
+
+<p>FIX has at least two representations: <b>tag=value</b> and <b>FIXML</b>.</p>
+
+<!--...stag\61\value:4:-->
+<h3>tag=value</h3>
+
+<p>tag=value is a compact representation, a typical message might start with :-</p>
+<pre>
+8=FIX.4.4&lt;SOH&gt;9=176&lt;SOH&gt;35=D&lt;SOH&gt;49=AFUNDMGR&lt;SOH&gt;56=ABROKER&lt;SOH&gt;34=521...
+</pre>
+<p>where &lt;SOH&gt; is ASCII character 1.</p>
+
+<p>FIX Engines typically speak tag=value over network links between each other.</p>
+
+<p>The <b>FAST</b> wire protocol is a compressed version of the tag=value
+format.
+We could imagine other compressed variants of tag=value, perhaps using ASN.1,
+but note that some of the FIX HFT discussion recently has proposed a number of
+measures that result in a different protocol rather than a different
+representation of the current protocol.</p>
+<!--...e-->
+<!--...sFIXML:4:-->
+<h3>FIXML</h3>
+
+<p>FIXML is an alternative XML based representation of FIX.
+A typical example might look like this :-</p>
+<pre>
+&lt;FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4" v="4.4"&gt;
+    &lt;Order ID="123456" Side="2" TxnTm="2001-09-11T09:30:47-05:00"
+           Typ="2" Px="93.25" Acct="26522154"&gt;
+        &lt;Hdr Snt="2001-09-11T09:30:47-05:00" PosDup="N" PosRsnd="N"
+             SeqNum="521" SID="AFUNDMGR" TID="ABROKER"/&gt;
+        &lt;Instrmt Sym="IBM" ID="459200101" Src="1"/&gt;
+        &lt;OrdQty Qty="1000"/&gt;
+    &lt;/Order&gt;
+&lt;/FIXML&gt;
+</pre>
+
+<p>FIX in this representation can be easier to process, due to the ready
+availability of standard and open XML tools.</p>
+
+<p>Many corporate messaging systems are XML based, in order to handle
+ISO 20022, FpML, XBRL and SWIFT (as MT/XML).
+Being able to represent FIX as FIXML can enable the processing of FIX by
+these messaging systems.</p>
+
+<p>This further enables the use of the FIXML XSDs for message validation,
+the use of XSLT, Schematron or ISO Schematron for cross-field validation,
+and even the use of XQuery rules for cross-field validation.
+Routing and triggering based upon XPath expression is also enabled.</p>
+
+<p>The use of FIXML instead of tag=value is usually at a non-trivial
+performance cost, and may not be for everyone.
+Therefore FIXML may play less in the pre-trade space, and more in the
+post-trade space.</p>
+
+<p>Prior to FIX.4.4, the FIXML representations are defined by DTD, not by XSD.
+The Unified FIX Repository annotates them with <code>fixml="0"</code>
+suggesting that schemas shouldn't be generated from it.
+These earlier forms of FIXML seem to use elements where the modern form
+uses attributes.</p>
+
+<!--...sWhat variants of FIXML can the FIX Converter cope with\63\:4:-->
+<h4>What variants of FIXML can the FIX Converter cope with?</h4>
+
+<p><b>This converter only understands valid FIXML as of version 4.4 onwards</b>.
+The example shown previously is an example of this, and a good way to spot
+such messages is to note that the CompIDs are <code>SID</code> and
+<code>TID</code> attributes of the <code>Hdr</code> element.
+Unfortunately, the FIX Converter doesn't support the older 4.2 style of FIXML.</p>
+
+<p>If you were to add metadata to the FIX.4.2 entry in the
+Unified FIX Repository, you could generate FIXML schemas in the new 4.4
+style (although of course, these wouldn't match the official 4.2 DTD).
+FIX Converter would then be able to handle this alternative XML representation
+of FIX.4.2.
+It would also be necessary to ensure messages didn't directly include
+repeatingGroups, but instead used componentRefs to components containing
+repeatingGroups.</p>
+
+<p>Unfortunately, it is common practice to send FIX messages in which the
+elements are not in the appropriate FIX namespace (or any namespace for that
+matter).
+The next two examples break the rules in this way.
+FIX Converter can cope with this (versioning related constraints below).
+It always generates FIXML with the right namespace.</p>
+
+<p><a href="http://fixwiki.fixprotocol.org/fixwiki/FPL:FIXML_Syntax">
+      <code>http://fixwiki.fixprotocol.org/fixwiki/FPL:FIXML_Syntax</code></a>
+has a couple of FIXML examples, reproduced here.</p>
+
+<p>It shows an example of "FIXML 4.2 Version", which is somewhat verbose.
+A good way to spot such messages is that they have a <code>FIXMLMessage</code>
+element and the CompIDs are <code>CompID</code> elements within
+<code>Sender</code> and <code>Target</code> elements.
+The example looks like this :-</p>
+<pre>
+&lt;FIXML&gt;
+    &lt;FIXMLMessage&gt;
+        &lt;Header&gt;
+            &lt;PossDupFlag Value="N"/&gt;
+            &lt;PossResend Value="N"/&gt;
+            &lt;SendingTime&gt;20020103-12  00  01&lt;/SendingTime&gt;
+            &lt;Sender&gt;
+                &lt;CompID&gt;AFUNDMGR&lt;/CompID&gt;
+            &lt;/Sender&gt;
+            &lt;Target&gt;
+                &lt;CompID&gt;ABROKER&lt;/CompID&gt;
+            &lt;/Target&gt;
+        &lt;/Header&gt;
+        &lt;ApplicationMessage&gt;
+            &lt;Order&gt;
+                <i>... stuff</i>
+            &lt;/Order&gt;
+        &lt;/ApplicationMessage&gt;
+    &lt;/FIXMLMessage&gt;
+&lt;/FIXML&gt;
+</pre>
+
+<p>Note that in the example, the <code>SendingTime</code> should actually
+be <code>2002-01-03T12:00:01</code>.</p>
+
+<p>The wiki also shows something it calls "FIXML 4.4 Schema Version".
+However, in the FIXML 4.4 schema, the CompIDs are not elements
+called <code>Sndr</code> or <code>Tgt</code>, they are attributes
+called <code>SID</code> and <code>TID</code> of the <code>Hdr</code> element.
+The example therefore <i>incorrectly</i> looks like this :-</p>
+<pre>
+&lt;FIXML&gt;
+    &lt;Order ClOrdID="123456" Side="2"
+            TransactTm="2001-09-11T09:30:47-05:00"
+            OrdTyp="2" Px="93.25" Acct="26522154"&gt;
+        &lt;Hdr Snt="2001-09-11T09:30:47-05:00"
+             PosDup="N" PosRsnd="N" SeqNum="521"&gt;
+             &lt;Sndr ID="AFUNDMGR"/&gt;
+             &lt;Tgt ID="ABROKER"/&gt;
+        &lt;/Hdr&gt;
+        &lt;Instrmt Sym="IBM" ID="459200101" IDSrc="1"/&gt;
+        &lt;OrdQty Qty="1000"/&gt;
+    &lt;/Order&gt;
+&lt;/FIXML&gt;
+</pre>
+
+<p>Note that even the the <code>fixml-schema-4-4-examples-20040109.zip</code>
+file that can be downloaded from the FIX Protocol site include a file
+called <code>PositionReportExample1.xml</code> has this incorrect
+<code>Hdr</code> structure.</p>
+
+<p>I have also seen variants of the above where the sender CompID
+element was called <code>Snd</code> instead of <code>Sndr</code>.</p>
+
+<p>In <code>fixml-schema-4-4-examples-20040109.zip</code>
+the included <code>AllocationInstruction.xml</code> file has no namespace,
+has bad dates, and has the wrong repeating group structure.</p>
+
+<p>As incorrect messages like this don't agree with the FIX Repository,
+or schemas generated from it, the FIX Converter doesn't support them.</p>
+<!--...e-->
+<!--...e-->
+<!--...e-->
+<!--...sThe need for conversion:4:-->
+<h2>The need for conversion</h2>
+
+<p>Just as the SWIFT MT (a compact binary format) is transported over the
+SWIFT network between organisations and SWIFT MT/XML is sometimes transported
+between applications within an organisation, we can forsee FIX tag=value
+being spoken between organisations (such as brokers and fund managers)
+and FIXML being used within these organisations.</p>
+<!--...e-->
+
+  </body>
+</html>

@@ -1,0 +1,116 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- taken from fixml-schema-4-4-examples-20040109.zip -->
+<!-- namespace fixed -->
+<!-- fixed TrdDt, SettlDt, MatDt and Issued to match xs:date -->
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <AllocRpt RptID="3303BBRKCP001601" TransTyp="0" ID="20012358" RptTyp="3" Stat="0" TxnTm="2003-10-30T16:46:17" NoOrdsTyp="1" PxTyp="4" Side="1" Ccy="USD" Qty="49183000.000000" AvgPx="99.99708330" TrdDt="2003-10-30" LastMkt="BDTR" GrossTrdAmt="49181565.480" NetMny="49181565.480" SettlDt="2003-10-30" LastFragment="Y">
+        <Hdr SID="BONDBROKER" TID="ABCINV" SeqNum="308" Snt="2003-10-30T16:46:19"/>
+        <OrdAlloc ClOrdID="IN2003103001" OrdID2="3303BBRKCP00160"/>
+        <AllExc LastQty="49183000.000000" ExecID="3303BBRKCP001601" LastPx="1.050"/>
+        <Instrmt Sym="[N/A]" ID="7005A1" Src="1" Prod="9" SecTyp="CP" Issr="PARKGR2" MatDt="2003-10-31" Issued="2003-10-30" Desc="PARKGR2 10/31/2003"/>
+        <Pty ID="ABC Investments" Src="C" R="3"/>
+        <Pty ID="joe.trader@abcinv.com" Src="C" R="11"/>
+        <Pty ID="BBRKUS33" Src="B" R="1"/>
+        <Alloc Acct="FUND1" Qty="33094000" AcrdIntAmt="0.0" NetMny="33093034.750"/>
+        <Alloc Acct="TRUST3" Qty="16089000" AcrdIntAmt="0.0" NetMny="16088530.730"/>
+    </AllocRpt>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagMessage AllocationReport
+        {
+        addTag (header) 8=FIX.4.4
+        addTag (header) 9
+        addTag (header) 35=AS
+        xmlToTagComponent StandardHeader
+            {
+            addTag SID 49=BONDBROKER
+            addTag TID 56=ABCINV
+            addTag SeqNum 34=308
+            addTag Snt 52=20031030-16:46:19
+            }
+        addTag RptID 755=3303BBRKCP001601
+        addTag ID 70=20012358
+        addTag TransTyp 71=0
+        addTag RptTyp 794=3
+        addTag Stat 87=0
+        addTag NoOrdsTyp 857=1
+        addTag (no) 73
+        xmlToTagRepeatingGroup 
+            {
+            addTag ClOrdID 11=IN2003103001
+            addTag OrdID2 198=3303BBRKCP00160
+            }
+        addTag (no) 124
+        xmlToTagRepeatingGroup 
+            {
+            addTag LastQty 32=49183000.000000
+            addTag ExecID 17=3303BBRKCP001601
+            addTag LastPx 31=1.050
+            }
+        addTag Side 54=1
+        xmlToTagComponent Instrument
+            {
+            addTag Sym 55=[N/A]
+            addTag ID 48=7005A1
+            addTag Src 22=1
+            addTag Prod 460=9
+            addTag SecTyp 167=CP
+            addTag MatDt 541=20031031
+            addTag Issued 225=20031030
+            addTag Issr 106=PARKGR2
+            addTag Desc 107=PARKGR2 10/31/2003
+            }
+        addTag Qty 53=49183000.000000
+        addTag LastMkt 30=BDTR
+        addTag PxTyp 423=4
+        addTag AvgPx 6=99.99708330
+        addTag Ccy 15=USD
+        addTag (no) 453
+        xmlToTagRepeatingGroup 
+            {
+            addTag ID 448=ABC Investments
+            addTag Src 447=C
+            addTag R 452=3
+            }
+        xmlToTagRepeatingGroup 
+            {
+            addTag ID 448=joe.trader@abcinv.com
+            addTag Src 447=C
+            addTag R 452=11
+            }
+        xmlToTagRepeatingGroup 
+            {
+            addTag ID 448=BBRKUS33
+            addTag Src 447=B
+            addTag R 452=1
+            }
+        addTag TrdDt 75=20031030
+        addTag TxnTm 60=20031030-16:46:17
+        addTag SettlDt 64=20031030
+        addTag GrossTrdAmt 381=49181565.480
+        addTag NetMny 118=49181565.480
+        addTag LastFragment 893=Y
+        addTag (no) 78
+        xmlToTagRepeatingGroup 
+            {
+            addTag Acct 79=FUND1
+            addTag Qty 80=33094000
+            addTag NetMny 154=33093034.750
+            addTag AcrdIntAmt 742=0.0
+            }
+        xmlToTagRepeatingGroup 
+            {
+            addTag Acct 79=TRUST3
+            addTag Qty 80=16089000
+            addTag NetMny 154=16088530.730
+            addTag AcrdIntAmt 742=0.0
+            }
+        addTag (trailer) 10=203
+        }
+    }
+=== Output tag=value message 1
+8=FIX.4.4\x019=650\x0135=AS\x0149=BONDBROKER\x0156=ABCINV\x0134=308\x0152=20031030-16:46:19\x01755=3303BBRKCP001601\x0170=20012358\x0171=0\x01794=3\x0187=0\x01857=1\x0173=1\x0111=IN2003103001\x01198=3303BBRKCP00160\x01124=1\x0132=49183000.000000\x0117=3303BBRKCP001601\x0131=1.050\x0154=1\x0155=[N/A]\x0148=7005A1\x0122=1\x01460=9\x01167=CP\x01541=20031031\x01225=20031030\x01106=PARKGR2\x01107=PARKGR2 10/31/2003\x0153=49183000.000000\x0130=BDTR\x01423=4\x016=99.99708330\x0115=USD\x01453=3\x01448=ABC Investments\x01447=C\x01452=3\x01448=joe.trader@abcinv.com\x01447=C\x01452=11\x01448=BBRKUS33\x01447=B\x01452=1\x0175=20031030\x0160=20031030-16:46:17\x0164=20031030\x01381=49181565.480\x01118=49181565.480\x01893=Y\x0178=2\x0179=FUND1\x0180=33094000\x01154=33093034.750\x01742=0.0\x0179=TRUST3\x0180=16089000\x01154=16088530.730\x01742=0.0\x0110=203\x01

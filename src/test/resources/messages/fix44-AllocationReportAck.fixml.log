@@ -1,0 +1,36 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- taken from fixml-schema-4-4-examples-20040109.zip -->
+<!-- namespace fixed -->
+<!-- TrdDt fixed to match xs:date -->
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <AllocRptAck TrdDt="2003-10-30" TxnTm="2003-10-30T16:46:17" Stat="0" RptID="3303GSCOCP001601" ID="20012358">
+        <Hdr SID="ABCINV" TID="BONDBROKER" SeqNum="304" Snt="2003-10-30T16:46:23"/>
+    </AllocRptAck>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagMessage AllocationReportAck
+        {
+        addTag (header) 8=FIX.4.4
+        addTag (header) 9
+        addTag (header) 35=AT
+        xmlToTagComponent StandardHeader
+            {
+            addTag SID 49=ABCINV
+            addTag TID 56=BONDBROKER
+            addTag SeqNum 34=304
+            addTag Snt 52=20031030-16:46:23
+            }
+        addTag RptID 755=3303GSCOCP001601
+        addTag ID 70=20012358
+        addTag TrdDt 75=20031030
+        addTag TxnTm 60=20031030-16:46:17
+        addTag Stat 87=0
+        addTag (trailer) 10=127
+        }
+    }
+=== Output tag=value message 1
+8=FIX.4.4\x019=129\x0135=AT\x0149=ABCINV\x0156=BONDBROKER\x0134=304\x0152=20031030-16:46:23\x01755=3303GSCOCP001601\x0170=20012358\x0175=20031030\x0160=20031030-16:46:17\x0187=0\x0110=127\x01

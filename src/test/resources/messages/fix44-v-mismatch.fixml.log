@@ -1,0 +1,20 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- deliberately mismatches namespace and v attribute -->
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4" v="4.5" r="20030618" s="20040109">
+    <Order ID="123456" Side="2" TxnTm="2001-09-11T09:30:47-05:00" Typ="2" Px="93.25" Acct="26522154">
+        <Hdr Snt="2001-09-11T09:30:47-05:00" PosDup="N" PosRsnd="N" SeqNum="521" SID="AFUNDMGR" TID="ABROKER"/>
+        <Instrmt Sym="IBM" ID="459200101" Src="1"/>
+        <OrdQty Qty="1000"/>
+    </Order>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagError: inconsistent version: namespace says http://www.fixprotocol.org/FIXML-4-4, v attribute says FIX.4.5
+org.fixprotocol.contrib.converter.FixConvException: inconsistent version: namespace says http://www.fixprotocol.org/FIXML-4-4, v attribute says FIX.4.5
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTagError(FixConv.java:516)
+	at org.fixprotocol.contrib.converter.FixConv.versionOfFIXML(FixConv.java:1037)
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTag(FixConv.java:1069)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:218)

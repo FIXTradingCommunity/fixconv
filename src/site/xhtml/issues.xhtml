@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <title>FIX Converter</title>
+  </head>
+  <body>
+
+    <h1>Issues</h1>
+
+    <p>This code was written back in June 2011, using the 2010 Edition of the
+    Unified FIX Repository.
+    There doesn't yet appear to be a later version of the Unified FIX
+    Repository standard.
+    Also, looking at the proposal for FIXML 1.2, there are certain changes
+    or clarifications relating to length fields, NumInGroup fields, and
+    data fields as elements (rather than attributes), which when/if ratified
+    could require an update to this code.</p>
+
+    <p>The FIX Converter has hard coded knowledge of the relationship between
+    FIX versions (eg: <code>FIX.5.0SP2</code>) and the enumerated value used
+    in the <code>ApplVerID</code> (1128) to represent them (eg: <code>9</code>).
+    The enumerations <code>symbolicName</code> attribute in the repository
+    is not sufficient for this purpose.
+    A better solution is for the <code>&lt;fix/&gt;</code> elements to have an
+    additional attribute, such as <code>appVerID="9"</code>.</p>
+
+    <p>The FIX Converter has hard coded knowledge of how the namespaces work
+    in FIX.4.x .. FIX.5.0, FIX.5.0SP1 .. FIX.5.0SP2 and how it has been stated that
+    they will work for FIX.5.0SP3 onwards.
+    A better solution is for the <code>&lt;fix/&gt;</code> elements to have an
+    attribute, such as
+    <code>fixmlNamespace="http://www.fixprotocol.org/FIXML-5"</code>.</p>
+
+    <p>The 2010 Edition of the Unified FIX Repository does not identify which
+    tags contain encoded text.
+    The code assumes the 2011 Edition will include an <code>encoded="1"</code>
+    attribute on such fields.
+    For the 2010 Edition, it assumes that if the field name starts with
+    <code>Encoded</code> and doesn't end in <code>Len</code>, then its encoded.
+    Looking at the existing 2010 <code>FixRepository.xml</code> content, this
+    should probably be ok.</p>
+
+    <p>The FIX Converter has hard coded knowledge of the relationship between
+    FIX character encodings (eg: <code>Shift_JIS</code>) and the equivelent
+    Java Charset (eg: <code>SJIS</code>).
+    This is technology dependant, and may even be JVM vendor dependant, so
+    I don't suppose its a good idea to extend the Unified FIX Repository to
+    contain this information.</p>
+
+    <p>The FIX Repository defines certain fields as data, in that they have a
+    length tag and a data tag of that length.
+    The FIXML Specification prior to 1.2 does not specify how such fields are
+    represented within FIXML.
+    Today, the FIX Converter stores them base64 encoded, as it is
+    content preserving and precedent for this exists in other XML files.
+    Like other fix tags, the data is stored in an XML attribute.</p>
+
+    <p><code>XMLData</code> fields contain XML documents, and the root element
+    becomes a nested element of the enclosing component.
+    Given what is in FIXimate, this looks reasonable, but I've not seen any
+    samples to compare against.</p>
+
+    <p>Note: beware <code>xercesImpl-2.6.2.jar</code>, as we've seen
+    <code>org.apache.xerces.dom.DocumentImpl cannot be cast to org.apache.xerces.dom.DeferredDocumentImpl</code>
+    when processing <code>XMLData</code> fields.
+    This is a Xerces-J bug, claimed to be fixed in 2.8.0.
+    We've tried 2.8.1 and it appears fixed.
+    At time of writing, 2.11.0 is current.
+    Note that we also observe that Java 1.6.0_20 internally includes
+    Xerces-J 2.6.2, but this doesn't show the problem.
+    Presumably Sun included a patch in this version.</p>
+
+  </body>
+</html>

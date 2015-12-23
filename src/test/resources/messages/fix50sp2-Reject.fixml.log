@@ -1,0 +1,35 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Note that Reject is a session message and so officially isn't a part of FIXML,
+and isn't included in the FIXML XSDs.
+Despite this, FIX Converter can convert it to tag=value.
+-->
+<FIXML v="5.0" xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2">
+    <Reject RefSeqNum="666" Txt="No Sir, I didn't like it">
+        <Hdr SID="GATEKEEPER" Snt="2001-09-11T14:30:47" TID="BADBOY"/>
+    </Reject>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagMessage Reject
+        {
+        addTag (header) 8=FIXT.1.1
+        addTag (header) 9
+        addTag (header) 35=3
+        xmlToTagComponent StandardHeader
+            {
+            addTag ApplVerID 1128=9
+            addTag SID 49=GATEKEEPER
+            addTag TID 56=BADBOY
+            addTag Snt 52=20010911-14:30:47
+            }
+        addTag RefSeqNum 45=666
+        addTag Txt 58=No Sir, I didn't like it
+        addTag (trailer) 10=006
+        }
+    }
+=== Output tag=value message 1
+8=FIXT.1.1\x019=92\x0135=3\x011128=9\x0149=GATEKEEPER\x0156=BADBOY\x0152=20010911-14:30:47\x0145=666\x0158=No Sir, I didn't like it\x0110=006\x01

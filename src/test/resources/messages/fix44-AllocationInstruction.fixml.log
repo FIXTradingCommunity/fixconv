@@ -1,0 +1,88 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- taken from fixml-schema-4-4-examples-20040109.zip -->
+<!-- namespace fixed, dates fixed -->
+<!-- note that the content structure is still wrong, Pty is unexpected where it is -->
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <AllocInstrctn ID="20012358" TransTyp="0" Typ="2" NoOrdsTyp="1" Side="1" Qty="49183000" AvgPx="99.9970833" Ccy="USD" TrdDt="2003-10-30" TxnTm="2003-10-30T16:31:31" SettlDt="2003-10-30" PxTyp="4">
+        <Hdr SID="ABCINV" TID="BONDBROKER" SeqNum="302" Snt="2003-10-30T16:46:13"/>
+        <OrdAlloc ClOrdID="IN2003103001" OrdID="IN2003103001" OrdID2="3303BBRKCP00160"/>
+        <AllExc LastQty="49183000" ExecID="3303BBRKCP001601" LastPx="1.05"/>
+        <Instrmt Sym="[N/A]" ID="7005A1" Src="1" Issr="PARKGR2" Desc="PARKGR2 10/31/2003" Prod="9" MatDt="2003-10-31" SecTyp="CP"/>
+        <Alloc Acct="FUND1" Qty="33094000"/>
+        <Alloc Acct="TRUST3" Qty="16089000"/>
+        <Pty ID="BBRKUS33" Src="B" R="1"/>
+        <Pty ID="jtrader" Src="C" R="11"/>
+    </AllocInstrctn>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagMessage AllocationInstruction
+        {
+        addTag (header) 8=FIX.4.4
+        addTag (header) 9
+        addTag (header) 35=J
+        xmlToTagComponent StandardHeader
+            {
+            addTag SID 49=ABCINV
+            addTag TID 56=BONDBROKER
+            addTag SeqNum 34=302
+            addTag Snt 52=20031030-16:46:13
+            }
+        addTag ID 70=20012358
+        addTag TransTyp 71=0
+        addTag Typ 626=2
+        addTag NoOrdsTyp 857=1
+        addTag (no) 73
+        xmlToTagRepeatingGroup 
+            {
+            addTag ClOrdID 11=IN2003103001
+            addTag OrdID 37=IN2003103001
+            addTag OrdID2 198=3303BBRKCP00160
+            }
+        addTag (no) 124
+        xmlToTagRepeatingGroup 
+            {
+            addTag LastQty 32=49183000
+            addTag ExecID 17=3303BBRKCP001601
+            addTag LastPx 31=1.05
+            }
+        addTag Side 54=1
+        xmlToTagComponent Instrument
+            {
+            addTag Sym 55=[N/A]
+            addTag ID 48=7005A1
+            addTag Src 22=1
+            addTag Prod 460=9
+            addTag SecTyp 167=CP
+            addTag MatDt 541=20031031
+            addTag Issr 106=PARKGR2
+            addTag Desc 107=PARKGR2 10/31/2003
+            }
+        addTag Qty 53=49183000
+        addTag PxTyp 423=4
+        addTag AvgPx 6=99.9970833
+        addTag Ccy 15=USD
+        addTag TrdDt 75=20031030
+        addTag TxnTm 60=20031030-16:31:31
+        addTag SettlDt 64=20031030
+        addTag (no) 78
+        xmlToTagRepeatingGroup 
+            {
+            addTag Acct 79=FUND1
+            addTag Qty 80=33094000
+            }
+        xmlToTagRepeatingGroup 
+            {
+            addTag Acct 79=TRUST3
+            addTag Qty 80=16089000
+            }
+        xmlToTagError: unexpected content Pty
+org.fixprotocol.contrib.converter.FixConvException: unexpected content Pty
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTagError(FixConv.java:516)
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTagElement(FixConv.java:893)
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTagMessage(FixConv.java:944)
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTag(FixConv.java:1117)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:218)

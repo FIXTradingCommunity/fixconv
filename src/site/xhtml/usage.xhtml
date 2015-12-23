@@ -1,0 +1,281 @@
+<html>
+  <head>
+    <title>FIX Converter</title>
+  </head>
+  <body>
+
+    <h1>Usage</h1>
+
+    <p>The FIX Converter defines two classes for describing a tag=value message.
+    The <code>FixTag</code> class has an integer ID and a byte array as its value.
+    Getters and setters are provided to access these.
+    The <code>FixTagMessage</code> class is basically a <code>Vector</code> of
+    <code>FixTag</code>s.</p>
+
+    <p>FIXML documents are manipulated in <code>org.w3c.dom.Document</code> form.</p>
+
+<!--...sBytes to tag\61\value:4:-->
+<h2>Bytes to tag=value</h2>
+
+<p>Your FIX Engine may already be providing you with a tag=value
+representation of your message, in which case, use the methods on
+<code>FixTag</code> and <code>FixTagMessage</code> to make your
+<code>FixTagMessage</code>.
+If not, read on...</p>
+
+<p>To use the FIX converter to parse an array of bytes into its
+representation of a FIX message in tag=value format, use :-</p>
+
+<pre>
+import org.fixprotocol.contrib.converter.*;
+
+Document d = <i>parsed FixRepository.xml</i>
+FixConv fc = new FixConv(d);
+byte[] b = <i>the FIX message</i>
+FixTagMessage ftm = fc.bytesToFixTagMessage(
+  b,
+  extMaj, // eg: "4", "5", or null
+  extMin, // eg: "4", "0", or null
+  extSP,  // eg: "SP1", "SP2", or null
+  extCv   // eg: "jpmc-to-lse-custom-version", or null
+  );
+</pre>
+
+<p>If the tags (<code>BeginString</code> (8), then possibly the
+<code>ApplVerID</code> (1128) and then possibly the
+<code>CstmApplVerID</code> (1129) tag) identify a version of FIX
+that is not present in the repository, then the FIX message may
+not be decoded properly.</p>
+
+<p>If the message doesn't fully define its version, and non-null
+external values are passed in, then these are used.</p>
+
+<p>Often people edit FIX messages in text editors and don't get it right,
+especially when preparing test data.
+They might miss the BeginString, forget the BodyLength, or calculate the CheckSum
+incorrectly.
+A method is provided to repair <code>FixTabMessage</code>s with these problems :-</p>
+
+<pre>
+ftm.repair();
+</pre>
+
+<p>Note that text editors often append <code>\n</code> or <code>\r\n</code> to the
+end of each line.
+You'll need to have stripped this prior to calling
+<code>bytesToFixTagMessage</code>.</p>
+<!--...e-->
+<!--...stag\61\value to bytes:4:-->
+<h2>tag=value to bytes</h2>
+
+<p>To convert a <code>FixTagMessage</code> back to bytes, you can either :-</p>
+<pre>
+byte[] b = fc.fixTagMessageToBytes(ftm);
+</pre>
+<p>or :-</p>
+<pre>
+byte[] b = ftm.toBytes();
+</pre>
+
+<p>The <code>FixTagMessage</code> also has a handy <code>.toString()</code>
+method which produces a printable string representation, which is intended
+primarily for debug purposes.
+In this printable form, the <code>\xHH</code> notation is used for unprintable
+ASCII characters, so the SOH characters for example appear as
+<code>\x01</code>.</p>
+<!--...e-->
+<!--...stag\61\value to FIXML:4:-->
+<h2>tag=value to FIXML</h2>
+
+<p>To convert a <code>FixTagMessage</code> to FIXML :-</p>
+<pre>
+Document d = fc.tagToXml(
+  ftm,    // the FixTagMessage
+  extMaj, // eg: "4", "5", or null
+  extMin, // eg: "4", "0", or null
+  extSP,  // eg: "SP1", "SP2", or null
+  extCv   // eg: "jpmc-to-lse-custom-version", or null
+  );
+</pre>
+
+<p>The <code>FixTagMessage</code> must obey a minimum of FIX rules,
+including :-</p>
+<ul>
+  <li>the first tag must be <code>BeginString</code> (8)</li>
+  <li>the second tag must be <code>BodyLength</code> (9), although its not
+      checked</li>
+  <li>the third tag must be <code>MsgType</code> (35)</li>
+  <li>for FIX.5.0 onwards, the <code>ApplVerID</code> (1128) tag should
+      define the FIX application version, including service pack number</li>
+  <li>for FIX.5.0 onwards, if a bi-laterially agreed custom version of FIX is
+      being spoken, the <code>CstmApplVerID</code> (1129) tag must identify
+      that version, and that same ID must match the <code>customVersion</code>
+      attribute in the Unified FIX Repository</li>
+  <li>if there are any encoded tags (eg: Japanese names in the
+      <code>Shift_JIS</code> encoding), then the <code>MessageEncoding</code>
+      tag has to be present</li>
+</ul>
+
+<p>For FIX.5.0 onwards, if the <code>ApplVerID</code> tag is not found,
+the <code>extMaj</code> and <code>extMin</code> values are used
+(possibly with the <code>extSP</code> appended, if defined).
+If the <code>CstmApplVerID</code> tag is not found, the
+<code>extCv</code> is used if present.
+If these external values are needed, and are not supplied, then an
+exception is thrown.</p>
+
+<p>The generated XML will have the elements in the correct namespace, eg:</p>
+<ul>
+  <li>FIX 4.4 - <code>http://www.fixprotocol.org/FIXML-4-4</code></li>
+  <li>FIX 5.0 - <code>http://www.fixprotocol.org/FIXML-5-0</code></li>
+  <li>FIX 5.0SP2 - <code>http://www.fixprotocol.org/FIXML-5-0-SP2</code></li>
+  <li>FIX 5.0SP3 onwards - <code>http://www.fixprotocol.org/FIXML-5</code></li>
+</ul>
+
+<p>If the input tag=value message has the <code>ApplExtID</code> (1156) tag
+then the resulting FIXML message has the <code>xv</code> attribute.</p>
+
+<p>Certain tags in the <code>FixTagMessage</code> must be in the places
+described by the rules above.
+The converter will accept other tags in messages and components in orders
+different to that in the Unified FIX Repository.
+Rules relating to repeating groups NoXxx tags, and the first tag in each
+group must still be adhered to (else the message can't be processed).</p>
+<!--...e-->
+<!--...stag\61\value to pretty string:4:-->
+<h2>tag=value to pretty string</h2>
+
+<p>To convert a <code>FixTagMessage</code> to a printable string, you can :-</p>
+<pre>
+String s = fc.fixTagMessageToPretty(
+  ftm,
+  extMaj, // eg: "4", "5", or null
+  extMin, // eg: "4", "0", or null
+  extSP,  // eg: "SP1", "SP2", or null
+  extCv   // eg: "jpmc-to-lse-custom-version", or null
+  );
+</pre>
+
+<p>This produces a string with one line per field, with each tag
+annotated with its name.
+Sometimes it can be easier to read a FIX tag=value message this way.</p>
+
+<p>This method has to operate on an instance of a <code>FixConv</code>
+as it needs access to the Unified FIX Repository that has been loaded.</p>
+
+<p>The the message doesn't fully define its version, and non-null
+external values are passed in, then these are used.</p>
+<!--...e-->
+<!--...sFIXML to tag\61\value:4:-->
+<h2>FIXML to tag=value</h2>
+
+<p>To convert from FIXML to tag=value :-</p>
+<pre>
+List&lt;FixTagMessage&gt; ftms = fc.xmlToTag(
+  d,      // the FIXML document
+  extMaj, // eg: "4", "5", or null
+  extMin, // eg: "4", "0", or null
+  extSP,  // eg: "SP1", "SP2", or null
+  extCv   // eg: "jpmc-to-lse-custom-version", or null
+  );
+</pre>
+
+<p>The FIXML document is expected to have its elements in the correct
+namespace.
+The code still works if no namespace is employed, but you may have to help it
+determine the version (see the versioning algorithm below for details).</p>
+
+<p>The conversion algorithm inspects the namespace to work out what it can
+about the major, minor and service pack number of the message.
+It then looks for the <code>v</code> attribute on the root <code>FIXML</code>
+element, and also the <code>cv</code> attribute for the custom version.
+If this is insufficient, it tries to complete the picture by using the
+external version information passed into the <code>xmlToTag</code> method.</p>
+
+<p>The version algorithm is as follows :-</p>
+<pre>
+  if namespace missing or doesn't define major and minor
+    if FIXML v attribute present
+      use it
+    else
+      if extMaj and extMin supplied
+        use them
+      else
+        error
+    append extSP if supplied
+</pre>
+<pre>
+  else if namespace defines major only // this is the new FIX.5.0SP3 onwards style
+    if FIXML v attribute present
+      use it
+      if namespace disagrees with major number in FIXML v attribute
+        error
+    else
+      if extMaj and extMin is supplied
+        use them
+      else
+        error
+    append extSP if supplied
+</pre>
+<pre>
+  else namespace defines major and minor (and possibly service pack too)
+    use them
+    if FIXML v attribute present
+      if namespace disagrees with info in FIXML v attribute
+        error
+</pre>
+
+<p>Apologies for the above, but I didn't define the standard.
+This is an attempt to try to do the right thing by default.</p>
+
+<p>The custom version algorithm is as follows :-</p>
+<pre>
+  if FIXML cv attribute present
+    use it
+  else if extCv supplied
+    use it
+  else
+    normal, non-customised version
+</pre>
+
+<p>If the input FIXML message has the <code>xv</code> attribute, then the
+resulting tag=value message will have the <code>AppExtID</code> (1156) tag.</p>
+
+<p>You may have noticed the result is a <b>list</b> of tag=value messages.
+This is because FIXML documents may contain a Batch of messages, eg:</p>
+<pre>
+&lt;FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4" v="4.4"&gt;
+    &lt;Batch&gt;
+        &lt;!-- This header applies to all the messages --&gt;
+        &lt;Hdr Snt="2001-09-11T09:30:47-05:00" PosDup="N" PosRsnd="N"
+            SeqNum="521" SID="AFUNDMGR" TID="ABROKER"/&gt;
+        &lt;Order ID="123456" Side="2" TxnTm="2001-09-11T09:30:47-05:00"
+               Typ="2" Px="93.25" Acct="26522154"&gt;
+            &lt;Instrmt Sym="IBM" ID="459200101" Src="1"/&gt;
+            &lt;OrdQty Qty="1000"/&gt;
+        &lt;/Order&gt;
+        &lt;!-- This second message is a copy of the first, with different ID --&gt;
+        &lt;Order ID="123457" Side="2" TxnTm="2001-09-11T09:30:47-05:00"
+               Typ="2" Px="93.25" Acct="26522154"&gt;
+            &lt;!-- I've also included a message specific header --&gt;
+            &lt;Hdr PosDup="Y"/&gt;
+            &lt;Instrmt Sym="IBM" ID="459200101" Src="1"/&gt;
+            &lt;OrdQty Qty="1000"/&gt;
+        &lt;/Order&gt;
+    &lt;/Batch&gt;
+&lt;/FIXML&gt;
+</pre>
+
+<p>The converter will ensure each output message has tags from the
+Batch <code>Hdr</code>, with any values added or overwritten in the
+individual message <code>Hdr</code>s.</p>
+
+<p>The FIX converter cannot convert a list of tag=value messages into a single
+FIXML document.</p>
+
+<p>The generated <code>FixTagMessage</code>s have their tags in the same order
+as they are defined in the Unified FIX Repository.</p>
+<!--...e-->
+
+  </body>
+</html>

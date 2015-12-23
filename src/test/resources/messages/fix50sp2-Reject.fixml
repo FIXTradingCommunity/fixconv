@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Note that Reject is a session message and so officially isn't a part of FIXML,
+and isn't included in the FIXML XSDs.
+Despite this, FIX Converter can convert it to tag=value.
+-->
+<FIXML v="5.0" xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2">
+    <Reject RefSeqNum="666" Txt="No Sir, I didn't like it">
+        <Hdr SID="GATEKEEPER" Snt="2001-09-11T14:30:47" TID="BADBOY"/>
+    </Reject>
+</FIXML>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <Heartbeat>
+        <Hdr SID="C1" SeqNum="624" Snt="2011-03-14T01:11:36.219" TID="C2"/>
+    </Heartbeat>
+</FIXML>

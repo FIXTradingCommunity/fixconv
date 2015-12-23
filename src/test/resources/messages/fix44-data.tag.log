@@ -1,0 +1,42 @@
+=== Input tag=value message
+8=FIX.4.4\x0135=B\x0134=2\x0149=SENDER\x0152=20110329-12:00:00\x01148=HEADLINE\x0156=TARGET\x0195=7\x0196=RAWDATA\x0133=1\x0158=TEXT\x01
+=== Input tag=value message (repaired)
+8=FIX.4.4\x019=93\x0135=B\x0134=2\x0149=SENDER\x0152=20110329-12:00:00\x01148=HEADLINE\x0156=TARGET\x0195=7\x0196=RAWDATA\x0133=1\x0158=TEXT\x0110=008\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 34 SeqNum=2
+        tagToXmlFieldRef 49 SID=SENDER
+        tagToXmlFieldRef 52 Snt=2011-03-29T12:00:00
+        }
+    tagToXmlFieldRef 148 Headline=HEADLINE
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 56 TID=TARGET
+        }
+    tagToXmlFieldRef 96 RawData=UkFXREFUQQ==
+    tagToXmlComponentRef TxtLn
+        {
+        tagToXmlRepeatingGroup TxtLn
+            {
+            repetition 1/1
+                {
+                tagToXmlFieldRef 58 Txt=TEXT
+                }
+            }
+        }
+    tagToXmlComponentRef Trlr
+        {
+        }
+    }
+=== Output FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <News Headline="HEADLINE" RawData="UkFXREFUQQ==">
+        <Hdr SID="SENDER" SeqNum="2" Snt="2011-03-29T12:00:00" TID="TARGET"/>
+        <TxtLn Txt="TEXT"/>
+    </News>
+</FIXML>
+

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <ExecRpt AvgPx="0" Ccy="USD" CumQty="0" ExecID="37236743" ExecTyp="5" HandlInst="1" ID="SOMEID" ID2="4930-O-o03111131" LastPx="0" LastQty="0" LeavesQty="20" MinQty="0" OrdID="768113" OrdID2="5N" Px="17311" Side="1" Stat="0" TmInForce="1" TxnTm="2011-03-14T03:24:28" Typ="2">
+        <Hdr SID="C1" SeqNum="1384" Snt="2011-03-14T03:24:28" TID="C2" TSub="4930"/>
+        <Instrmt Exch="C3" MatDt="2011-04-01" Sym="PL"/>
+        <OrdQty Qty="20"/>
+    </ExecRpt>
+</FIXML>

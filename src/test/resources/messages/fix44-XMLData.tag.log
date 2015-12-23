@@ -1,0 +1,26 @@
+=== Input tag=value message
+8=FIX.4.4\x0135=1\x0134=2\x0149=SENDER\x0152=20110329-12:00:00\x0156=TARGET\x01212=7\x01213=<root/>\x01112=ID\x01
+=== Input tag=value message (repaired)
+8=FIX.4.4\x019=76\x0135=1\x0134=2\x0149=SENDER\x0152=20110329-12:00:00\x0156=TARGET\x01212=7\x01213=<root/>\x01112=ID\x0110=052\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 34 SeqNum=2
+        tagToXmlFieldRef 49 SID=SENDER
+        tagToXmlFieldRef 52 Snt=2011-03-29T12:00:00
+        tagToXmlFieldRef 56 TID=TARGET
+        }
+    tagToXmlComponentRef Trlr
+        {
+        }
+    }
+=== Output FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <TestRequest>
+        <Hdr SID="SENDER" SeqNum="2" Snt="2011-03-29T12:00:00" TID="TARGET"/>
+    </TestRequest>
+</FIXML>
+

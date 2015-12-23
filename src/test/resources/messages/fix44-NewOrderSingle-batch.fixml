@@ -1,0 +1,18 @@
+<!-- I made this up working from fix44-NewOrderSingle.fixml -->
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4" v="4.4" r="20030618" s="20040109">
+    <Batch>
+        <!-- This header applies to all the messages -->
+        <Hdr Snt="2001-09-11T09:30:47-05:00" PosDup="N" PosRsnd="N" SID="AFUNDMGR" TID="ABROKER"/>
+        <Order ID="123456" Side="2" TxnTm="2001-09-11T09:30:47-05:00" Typ="2" Px="93.25" Acct="26522154">
+            <Instrmt Sym="IBM" ID="459200101" Src="1"/>
+            <OrdQty Qty="1000"/>
+        </Order>
+        <!-- This second message is a copy of the first, with different ID -->
+        <Order ID="123457" Side="2" TxnTm="2001-09-11T09:30:47-05:00" Typ="2" Px="93.25" Acct="26522154">
+            <!-- I've also included a message specific header -->
+            <Hdr PosDup="Y"/>
+            <Instrmt Sym="IBM" ID="459200101" Src="1"/>
+            <OrdQty Qty="1000"/>
+        </Order>
+    </Batch>
+</FIXML>

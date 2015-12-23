@@ -1,0 +1,10 @@
+=== Input tag=value message
+8=FIX.4.4\x0135=**BAD**\x0134=2\x0149=SENDER\x0152=20110328-09:00:00\x0156=TARGET\x01
+=== Input tag=value message (repaired)
+8=FIX.4.4\x019=57\x0135=**BAD**\x0134=2\x0149=SENDER\x0152=20110328-09:00:00\x0156=TARGET\x0110=204\x01
+=== Converting
+tagToXml
+    {
+org.fixprotocol.contrib.converter.FixConvException: message with MsgType=**BAD** not in FIX version FIX.4.4/
+	at org.fixprotocol.contrib.converter.FixConv.tagToXml(FixConv.java:1762)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:252)

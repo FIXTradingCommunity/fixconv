@@ -1,0 +1,61 @@
+=== Input tag=value message
+8=FIX.4.4\x0135=D\x0134=2\x0149=SENDER\x0152=20110328-09:00:00\x0156=TARGET\x0111=ID\x0121=1\x0140=1\x0154=1\x0138=200.00\x0155=INTC\x0178=2\x0179=acct1\x0180=50\x01661=1\x0179=acct2\x0180=150\x01661=1\x0160=20110328-09:00:00\x01
+=== Input tag=value message (repaired)
+8=FIX.4.4\x019=159\x0135=D\x0134=2\x0149=SENDER\x0152=20110328-09:00:00\x0156=TARGET\x0111=ID\x0121=1\x0140=1\x0154=1\x0138=200.00\x0155=INTC\x0178=2\x0179=acct1\x0180=50\x01661=1\x0179=acct2\x0180=150\x01661=1\x0160=20110328-09:00:00\x0110=079\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 34 SeqNum=2
+        tagToXmlFieldRef 49 SID=SENDER
+        tagToXmlFieldRef 52 Snt=2011-03-28T09:00:00
+        tagToXmlFieldRef 56 TID=TARGET
+        }
+    tagToXmlFieldRef 11 ID=ID
+    tagToXmlFieldRef 21 HandlInst=1
+    tagToXmlFieldRef 40 Typ=1
+    tagToXmlFieldRef 54 Side=1
+    tagToXmlComponentRef OrdQty
+        {
+        tagToXmlFieldRef 38 Qty=200.00
+        }
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlFieldRef 55 Sym=INTC
+        }
+    tagToXmlComponentRef PreAll
+        {
+        tagToXmlRepeatingGroup PreAll
+            {
+            repetition 1/2
+                {
+                tagToXmlFieldRef 79 Acct=acct1
+                tagToXmlFieldRef 80 Qty=50
+                tagToXmlFieldRef 661 ActIDSrc=1
+                }
+            repetition 2/2
+                {
+                tagToXmlFieldRef 79 Acct=acct2
+                tagToXmlFieldRef 80 Qty=150
+                tagToXmlFieldRef 661 ActIDSrc=1
+                }
+            }
+        }
+    tagToXmlFieldRef 60 TxnTm=2011-03-28T09:00:00
+    tagToXmlComponentRef Trlr
+        {
+        }
+    }
+=== Output FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <Order HandlInst="1" ID="ID" Side="1" TxnTm="2011-03-28T09:00:00" Typ="1">
+        <Hdr SID="SENDER" SeqNum="2" Snt="2011-03-28T09:00:00" TID="TARGET"/>
+        <PreAll Acct="acct1" ActIDSrc="1" Qty="50"/>
+        <PreAll Acct="acct2" ActIDSrc="1" Qty="150"/>
+        <Instrmt Sym="INTC"/>
+        <OrdQty Qty="200.00"/>
+    </Order>
+</FIXML>
+

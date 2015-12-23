@@ -1,0 +1,39 @@
+=== Input tag=value message
+8=FIX.4.4\x0135=d\x0134=2\x0149=SENDER\x0156=TARGET\x0152=20110328-09:00:00\x01320=REQ-ID\x01322=RSP-ID\x01323=6\x0155=SYMBOL\x0122=8\x01167=SEC-TYPE\x01336=SESSION-ID\x0158=No Products found for this Class Symbol\x01454=0\x01
+=== Input tag=value message (repaired)
+8=FIX.4.4\x019=171\x0135=d\x0134=2\x0149=SENDER\x0156=TARGET\x0152=20110328-09:00:00\x01320=REQ-ID\x01322=RSP-ID\x01323=6\x0155=SYMBOL\x0122=8\x01167=SEC-TYPE\x01336=SESSION-ID\x0158=No Products found for this Class Symbol\x01454=0\x0110=055\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 34 SeqNum=2
+        tagToXmlFieldRef 49 SID=SENDER
+        tagToXmlFieldRef 56 TID=TARGET
+        tagToXmlFieldRef 52 Snt=2011-03-28T09:00:00
+        }
+    tagToXmlFieldRef 320 ReqID=REQ-ID
+    tagToXmlFieldRef 322 RspID=RSP-ID
+    tagToXmlFieldRef 323 RspTyp=6
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlFieldRef 55 Sym=SYMBOL
+        tagToXmlFieldRef 22 Src=8
+        tagToXmlFieldRef 167 SecTyp=SEC-TYPE
+        }
+    tagToXmlFieldRef 336 SesID=SESSION-ID
+    tagToXmlFieldRef 58 Txt=No Products found for this Class Symbol
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlComponentRef AID
+            {
+            tagToXmlRepeatingGroup AID
+                {
+org.fixprotocol.contrib.converter.FixConvException: repeating group must have at least one group, tag=454, value=0
+	at org.fixprotocol.contrib.converter.FixConv.tagToXmlRepeatingGroup(FixConv.java:1578)
+	at org.fixprotocol.contrib.converter.FixConv.tagToXmlComponentRef(FixConv.java:1537)
+	at org.fixprotocol.contrib.converter.FixConv.tagToXmlMessageEntity(FixConv.java:1636)
+	at org.fixprotocol.contrib.converter.FixConv.tagToXmlComponentRef(FixConv.java:1550)
+	at org.fixprotocol.contrib.converter.FixConv.tagToXmlMessageEntity(FixConv.java:1636)
+	at org.fixprotocol.contrib.converter.FixConv.tagToXml(FixConv.java:1776)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:252)

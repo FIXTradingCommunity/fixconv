@@ -1,0 +1,27 @@
+=== Input tag=value message
+8=FIXT.1.1\x019=160\x0135=3\x011128=9\x0149=GATEKEEPER\x0156=BADBOY\x0134=123\x0152=20010911-14:30:47\x0145=666\x0158=No Sir, I didn't like it\x0110=96\x01
+=== Input tag=value message (repaired)
+8=FIXT.1.1\x019=99\x0135=3\x011128=9\x0149=GATEKEEPER\x0156=BADBOY\x0134=123\x0152=20010911-14:30:47\x0145=666\x0158=No Sir, I didn't like it\x0110=072\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 49 SID=GATEKEEPER
+        tagToXmlFieldRef 56 TID=BADBOY
+        tagToXmlFieldRef 52 Snt=2001-09-11T14:30:47
+        }
+    tagToXmlFieldRef 45 RefSeqNum=666
+    tagToXmlFieldRef 58 Txt=No Sir, I didn't like it
+    tagToXmlComponentRef Trlr
+        {
+        }
+    }
+=== Output FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="5.0" xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2">
+    <Reject RefSeqNum="666" Txt="No Sir, I didn't like it">
+        <Hdr SID="GATEKEEPER" Snt="2001-09-11T14:30:47" TID="BADBOY"/>
+    </Reject>
+</FIXML>
+

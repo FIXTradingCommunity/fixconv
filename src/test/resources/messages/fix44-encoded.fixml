@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <News Headline="HEADLINE">
+        <Hdr SID="SENDER" SeqNum="2" Snt="2011-03-29T12:00:00" TID="TARGET" MsgEncd="UTF-8"/>
+        <TxtLn Txt="TEXT" EncTxt="€ is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC"/>
+    </News>
+</FIXML>

@@ -1,0 +1,40 @@
+=== Input tag=value message
+8=FIX.4.4\x019=193\x0135=B\x0149=SENDER\x0156=TARGET\x0134=2\x0152=20110329-12:00:00\x01347=UTF-8\x01148=HEADLINE\x0133=1\x0158=TEXT\x01354=77\x01355=\xe2\x82\xac is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC\x0110=226\x01
+=== Input tag=value message (repaired)
+8=FIX.4.4\x019=176\x0135=B\x0149=SENDER\x0156=TARGET\x0134=2\x0152=20110329-12:00:00\x01347=UTF-8\x01148=HEADLINE\x0133=1\x0158=TEXT\x01354=77\x01355=\xe2\x82\xac is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC\x0110=119\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 49 SID=SENDER
+        tagToXmlFieldRef 56 TID=TARGET
+        tagToXmlFieldRef 34 SeqNum=2
+        tagToXmlFieldRef 52 Snt=2011-03-29T12:00:00
+        tagToXmlFieldRef 347 MsgEncd=UTF-8
+        }
+    tagToXmlFieldRef 148 Headline=HEADLINE
+    tagToXmlComponentRef TxtLn
+        {
+        tagToXmlRepeatingGroup TxtLn
+            {
+            repetition 1/1
+                {
+                tagToXmlFieldRef 58 Txt=TEXT
+                tagToXmlFieldRef 355 EncTxt=€ is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC
+                }
+            }
+        }
+    tagToXmlComponentRef Trlr
+        {
+        }
+    }
+=== Output FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <News Headline="HEADLINE">
+        <Hdr MsgEncd="UTF-8" SID="SENDER" SeqNum="2" Snt="2011-03-29T12:00:00" TID="TARGET"/>
+        <TxtLn EncTxt="€ is the Euro character, aka U+20AC, which in UTF-8 is 3 hex bytes E2 82 AC" Txt="TEXT"/>
+    </News>
+</FIXML>
+

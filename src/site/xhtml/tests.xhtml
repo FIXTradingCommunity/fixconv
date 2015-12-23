@@ -1,0 +1,152 @@
+<html>
+  <head>
+    <title>FIX Converter</title>
+  </head>
+  <body>
+
+    <h1>Tests</h1>
+
+    <p>A program is only as good as its tests.
+    Accordingly, FixConv comes with a simple command-line test program
+    that can be used for one-off conversions, and also to test it.</p>
+
+<!--...sThe test program:4:-->
+<h2>The test program</h2>
+
+<p>To run the test program :-</p>
+<pre>
+java -cp target/fixconv-&lt;VERSION&gt;.jar org.fixprotocol.contrib.converter.FixConvTest
+usage: FixConvTest xmlToTag FixRepository.xml file.fixml [file.tag [extMaj [extMin [extSP [extCv]]]]]
+   or: FixConvTest tagToXml FixRepository.xml file.tag [file.fixml [extMaj [extMin [extSP [extCv]]]]]
+   or: FixConvTest repair FixRepository.xml file.tag [file2.tag [extMaj [extMin [extSP [extCv]]]]]
+   or: FixConvTest pretty FixRepository.xml file.tag [extMaj [extMin [extSP [extCv]]]]
+   or: FixConvTest validate file.fixml fixml-main-X-X.xsd
+</pre>
+
+<p>This can be used to convert either way, eg: to convert from FIXML
+to tag=value :-</p>
+<pre>
+java -cp target/fixconv-&lt;VERSION&gt;.jar org.fixprotocol.contrib.converter.FixConvTest \
+xmlToTag src/test/resources/FixRepository-2010_Subset.xml file.fixml
+</pre>
+
+<p>To do the same, and keep the result in a file :-</p>
+<pre>
+java -cp target/fixconv-&lt;VERSION&gt;.jar org.fixprotocol.contrib.converter.FixConvTest \
+xmlToTag src/test/resources/FixRepository-2010_Subset.xml file.fixml file.fixml.tag
+</pre>
+
+<p>If the input FIXML file has a Batch of messages, and it contains
+more than one message, then several output files are written, with filenames
+ending in <code>-1</code>, <code>-2</code>, etc..</p>
+
+<p>To convert back :-</p>
+<pre>
+java -cp target/fixconv-&lt;VERSION&gt;.jar org.fixprotocol.contrib.converter.FixConvTest \
+tagToXml src/test/resources/FixRepository-2010_Subset.xml file.tag
+</pre>
+
+<p>and keep the result (without overwriting the original) :-</p>
+<pre>
+java -cp target/fixconv-&lt;VERSION&gt;.jar org.fixprotocol.contrib.converter.FixConvTest \
+tagToXml src/test/resources/FixRepository-2010_Subset.xml file.tag file.tag.fixml
+</pre>
+
+<p>The test program displays the message before translation,
+some debug tracing (which isn't normally shown when using the
+<code>FixConv</code> classes), and the output message(s).
+tag=value messages are shown in a debug printable form, ie: using the
+<code>.toString()</code> method described earlier, thus resulting
+in <code>\xHH</code> notation in the output.</p>
+
+<p>The <code>repair</code> command reads a tag=value message and if the
+BodyLength (9) field is missing, it inserts and calculates it.
+If the CheckSum (10) field is missing, it appends and calculates it.
+This is handy because sometimes people write sample test messages
+using text editors and omit these fields (or get them wrong).
+Some text editors also append newline characters (<code>\n</code> or
+<code>\r\n</code>) to the end of the line - this test program silently
+truncates these unwanted additions.</p>
+
+<p>The <code>pretty</code> command dumps the fields in a tag=value
+message, one to a line, annotating each with the tag name.</p>
+
+<p>If you have the schemas handy, the <code>validate</code> command
+can be used to check your FIXML file for validity.
+Validation errors are displayed, and silence is good.
+If a FIXML message is valid, this program should be able to convert it
+to tag=value.
+When tag=value messages are converted to FIXML, they should be valid.</p>
+
+<p>Note that the FIX Converter can convert session tag=value messages
+to FIXML, but note that these will fail to validate against the FIXML XSDs.
+This is not because there is anything wrong with them structurally,
+its just that the folks behind the Unified FIX Repository have decided
+that FIX session messages are not requred in FIXML.
+Looking at the 2010 Edition of the repository, I can see a problem
+in the way the FIX.4.4 <code>Logon</code> message is defined (it has a
+<code>NoMsgTypes</code> <code>repeatingGroup</code> directly within the
+<code>message</code>, rather than nested within a <code>component</code>
+which is <code>componentRef</code>d from the <code>message</code>.
+This prevents the correct generation of FIXML for that message.</p>
+<!--...e-->
+<!--...sThe test data:4:-->
+<h2>The test data</h2>
+
+<p><code>src/test/resources/FixRepository-2010_Subset.xml</code> is a stripped down
+subset of the 2010 Edition of the Unified FIX Repository,
+included for testing purposes.</p>
+
+<p><code>src/test/resources/messages/</code> contains
+many sample tag=value messages (with <code>.tag</code> file extension),
+and many sample FIXML messages (with <code>.fixml</code> file extension).</p>
+
+<p>The message filenames typically reflect the nature of their content,
+and the problem with the data, and sometimes the expected result.
+Sometimes the content itself includes comments regarding the expected result.
+eg: <code>fix44-malformed-tag.tag</code>.</p>
+
+<p>The result of doing a <code>xmlToTag</code> on a <code>.fixml</code>
+file is captured in a corresponding <code>.fixml.tag</code> file,
+and a log of the conversion process (captured from stdout) in a
+<code>.fixml.log</code> file.
+If a FIXML file converts to more than one tag=value file, then the
+filenames end in <code>-&lt;NUMBER&gt;.fixml.tag</code>.</p>
+
+<p>The result of doing a <code>tagToXml</code> on a <code>.tag</code>
+file is captured in a corresponding <code>.tag.fixml</code> file,
+and a log of the conversion process (captured from stdout) in a
+<code>.tag.log</code> file.</p>
+
+<p>Test messages have been difficult to source, and in many cases have been
+created by getting sample or real messages and cleaning them up so that they
+validate.
+Some came from the FPL site and some are real messages with names
+changed to protect the guilty.
+Some are designed to exercise specific functionality and some are designed to
+be defective in specific ways.</p>
+
+<p>The test data covers :-</p>
+<ul>
+  <li>Bad tags (malformed, and not valid in this version of FIX)</li>
+  <li>Bad message type (not valid in this version of FIX)</li>
+  <li>Bad XML message structure (element ordering)</li>
+  <li>Version and custom version of FIX not in the repository</li>
+  <li>Inconsistent version information</li>
+  <li>Correct XML element structure and incorrect</li>
+  <li>Fields in order, or not, to varying degrees</li>
+  <li>Repeating groups, good and badly formed (eg: zero repetitions)</li>
+  <li>Encoded text fields</li>
+  <li><code>data</code> fields</li>
+  <li>Session tag=value to FIXML (which then doesn't validate, as expected)</li>
+</ul>
+
+<p>Note that with the encoded data samples, although the data is right in the
+input and output files, it won't look right on the standard output because
+the terminal typically doesn't use the right encoding.</p>
+
+<p>The test data described above is what the JUnit tests use.</p>
+<!--...e-->
+
+  </body>
+</html>

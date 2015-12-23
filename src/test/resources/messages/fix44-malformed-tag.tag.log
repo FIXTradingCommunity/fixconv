@@ -1,0 +1,3 @@
+org.fixprotocol.contrib.converter.FixConvException: bad tag (tag=0), at byte position 25
+	at org.fixprotocol.contrib.converter.FixConv.bytesToFixTagMessage(FixConv.java:1159)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:245)

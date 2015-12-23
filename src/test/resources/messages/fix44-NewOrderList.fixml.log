@@ -1,0 +1,61 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from the official schemas using XMLSpy -->
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <NewOrdList BidTyp="1" ID="1" TotNoOrds="1">
+        <Ord ClOrdID="1" SeqNo="1" Side="1">
+            <Instrmt Sym="IBM"/>
+            <OrdQty Qty="100"/>
+        </Ord>
+        <Ord ClOrdID="2" SeqNo="2" Side="1">
+            <Instrmt Sym="IBM"/>
+            <OrdQty Qty="200"/>
+        </Ord>
+    </NewOrdList>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagMessage NewOrderList
+        {
+        addTag (header) 8=FIX.4.4
+        addTag (header) 9
+        addTag (header) 35=E
+        addTag ID 66=1
+        addTag BidTyp 394=1
+        addTag TotNoOrds 68=1
+        addTag (no) 73
+        xmlToTagRepeatingGroup 
+            {
+            addTag ClOrdID 11=1
+            addTag SeqNo 67=1
+            xmlToTagComponent Instrument
+                {
+                addTag Sym 55=IBM
+                }
+            addTag Side 54=1
+            xmlToTagComponent OrderQtyData
+                {
+                addTag Qty 38=100
+                }
+            }
+        xmlToTagRepeatingGroup 
+            {
+            addTag ClOrdID 11=2
+            addTag SeqNo 67=2
+            xmlToTagComponent Instrument
+                {
+                addTag Sym 55=IBM
+                }
+            addTag Side 54=1
+            xmlToTagComponent OrderQtyData
+                {
+                addTag Qty 38=200
+                }
+            }
+        addTag (trailer) 10=017
+        }
+    }
+=== Output tag=value message 1
+8=FIX.4.4\x019=84\x0135=E\x0166=1\x01394=1\x0168=1\x0173=2\x0111=1\x0167=1\x0155=IBM\x0154=1\x0138=100\x0111=2\x0167=2\x0155=IBM\x0154=1\x0138=200\x0110=017\x01

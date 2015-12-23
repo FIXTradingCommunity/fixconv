@@ -1,0 +1,26 @@
+=== Input FIXML message
+<?xml version="1.0"?>
+
+<!--
+This isn't a real FIXML 4.2 message
+It was created by copying an amending a FIXML 4.4 message.
+It is best described as FIX.4.2 in the style of FIXML 4.4.
+This exists for testing FIX Retro.
+-->
+
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-2" v="4.2">
+    <Order ID="123456" Side="2" TxnTm="2001-09-11T09:30:47-05:00" Typ="2" Px="93.25" Acct="26522154" HandlInst="1">
+        <Hdr Snt="2001-09-11T09:30:47-05:00" PosDup="N" PosRsnd="N" SeqNum="521" SID="AFUNDMGR" TID="ABROKER"/>
+        <Instrmt Sym="IBM" ID="459200101" Src="1"/>
+        <OrdQty Qty="1000"/>
+    </Order>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagError: don't understand FIX version FIX.4.2/
+org.fixprotocol.contrib.converter.FixConvException: don't understand FIX version FIX.4.2/
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTagError(FixConv.java:516)
+	at org.fixprotocol.contrib.converter.FixConv.xmlToTag(FixConv.java:1072)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:218)

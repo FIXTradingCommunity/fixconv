@@ -1,0 +1,4 @@
+A reference implementation of the translation between tag=value and FIXML.
+Driven from the Unified FIX Repository.
+Includes code, JUnit tests and Mavan site for documentation.
+A contribution to FIX Protocol Limited.

@@ -1,0 +1,10 @@
+=== Input tag=value message
+8=FIX.4.1\x0135=1\x0134=2\x0149=SENDER\x0152=20110329-12:00:00\x0156=TARGET\x01112=ID\x01
+=== Input tag=value message (repaired)
+8=FIX.4.1\x019=58\x0135=1\x0134=2\x0149=SENDER\x0152=20110329-12:00:00\x0156=TARGET\x01112=ID\x0110=230\x01
+=== Converting
+tagToXml
+    {
+org.fixprotocol.contrib.converter.FixConvException: message is FIX version FIX.4.1/ but this isn't in the repository
+	at org.fixprotocol.contrib.converter.FixConv.tagToXml(FixConv.java:1732)
+	at org.fixprotocol.contrib.converter.FixConvTest.main(FixConvTest.java:252)

@@ -1,0 +1,56 @@
+=== Input tag=value message
+8=FIXT.1.1\x019=160\x0135=D\x011128=9\x0149=AFUNDMGR\x0156=ABROKER\x0134=521\x0143=N\x0197=N\x0152=20010911-14:30:47\x0111=123456\x011=26522154\x0155=IBM\x0148=459200101\x0122=1\x0154=2\x0160=20010911-14:30:47\x0138=1000\x0140=2\x0144=93.25\x011184=21\x011185=<someXML xmlns="NS"/>\x0110=96\x01
+=== Input tag=value message (repaired)
+8=FIXT.1.1\x019=202\x0135=D\x011128=9\x0149=AFUNDMGR\x0156=ABROKER\x0134=521\x0143=N\x0197=N\x0152=20010911-14:30:47\x0111=123456\x011=26522154\x0155=IBM\x0148=459200101\x0122=1\x0154=2\x0160=20010911-14:30:47\x0138=1000\x0140=2\x0144=93.25\x011184=21\x011185=<someXML xmlns="NS"/>\x0110=044\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 49 SID=AFUNDMGR
+        tagToXmlFieldRef 56 TID=ABROKER
+        tagToXmlFieldRef 43 PosDup=N
+        tagToXmlFieldRef 97 PosRsnd=N
+        tagToXmlFieldRef 52 Snt=2001-09-11T14:30:47
+        }
+    tagToXmlFieldRef 11 ID=123456
+    tagToXmlFieldRef 1 Acct=26522154
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlFieldRef 55 Sym=IBM
+        tagToXmlFieldRef 48 ID=459200101
+        tagToXmlFieldRef 22 Src=1
+        }
+    tagToXmlFieldRef 54 Side=2
+    tagToXmlFieldRef 60 TxnTm=2001-09-11T14:30:47
+    tagToXmlComponentRef OrdQty
+        {
+        tagToXmlFieldRef 38 Qty=1000
+        }
+    tagToXmlFieldRef 40 Typ=2
+    tagToXmlFieldRef 44 Px=93.25
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlComponentRef SecXML
+            {
+            tagToXmlFieldRef 1185 of type XMLData
+            }
+        }
+    tagToXmlComponentRef Trlr
+        {
+        }
+    }
+=== Output FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="5.0" xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2">
+    <Order Acct="26522154" ID="123456" Px="93.25" Side="2" TxnTm="2001-09-11T14:30:47" Typ="2">
+        <Hdr PosDup="N" PosRsnd="N" SID="AFUNDMGR" Snt="2001-09-11T14:30:47" TID="ABROKER"/>
+        <Instrmt ID="459200101" Src="1" Sym="IBM">
+            <SecXML>
+                <someXML xmlns="NS"/>
+            </SecXML>
+        </Instrmt>
+        <OrdQty Qty="1000"/>
+    </Order>
+</FIXML>
+

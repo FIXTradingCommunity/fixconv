@@ -1,0 +1,65 @@
+=== Input tag=value message
+8=FIX.4.4\x019=254\x0135=8\x0134=1384\x0149=C1\x0152=20110314-03:24:28\x0156=C2\x0157=4930\x01369=888\x016=0\x0111=SOMEID\x0114=0\x0115=USD\x0117=37236743\x0121=1\x0131=0\x0132=0\x0137=768113\x0138=20\x0139=0\x0140=2\x0144=17311\x0154=1\x0155=PL\x0159=1\x0160=20110314-03:24:28\x01110=0\x01150=5\x01151=20\x01198=5N\x01207=C3\x01526=4930-O-o03111131\x01541=20110401\x0110=204\x01
+=== Input tag=value message (repaired)
+8=FIX.4.4\x019=254\x0135=8\x0134=1384\x0149=C1\x0152=20110314-03:24:28\x0156=C2\x0157=4930\x01369=888\x016=0\x0111=SOMEID\x0114=0\x0115=USD\x0117=37236743\x0121=1\x0131=0\x0132=0\x0137=768113\x0138=20\x0139=0\x0140=2\x0144=17311\x0154=1\x0155=PL\x0159=1\x0160=20110314-03:24:28\x01110=0\x01150=5\x01151=20\x01198=5N\x01207=C3\x01526=4930-O-o03111131\x01541=20110401\x0110=204\x01
+=== Converting
+tagToXml
+    {
+    tagToXmlComponentRef Hdr
+        {
+        tagToXmlFieldRef 34 SeqNum=1384
+        tagToXmlFieldRef 49 SID=C1
+        tagToXmlFieldRef 52 Snt=2011-03-14T03:24:28
+        tagToXmlFieldRef 56 TID=C2
+        tagToXmlFieldRef 57 TSub=4930
+        }
+    tagToXmlFieldRef 6 AvgPx=0
+    tagToXmlFieldRef 11 ID=SOMEID
+    tagToXmlFieldRef 14 CumQty=0
+    tagToXmlFieldRef 15 Ccy=USD
+    tagToXmlFieldRef 17 ExecID=37236743
+    tagToXmlFieldRef 21 HandlInst=1
+    tagToXmlFieldRef 31 LastPx=0
+    tagToXmlFieldRef 32 LastQty=0
+    tagToXmlFieldRef 37 OrdID=768113
+    tagToXmlComponentRef OrdQty
+        {
+        tagToXmlFieldRef 38 Qty=20
+        }
+    tagToXmlFieldRef 39 Stat=0
+    tagToXmlFieldRef 40 Typ=2
+    tagToXmlFieldRef 44 Px=17311
+    tagToXmlFieldRef 54 Side=1
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlFieldRef 55 Sym=PL
+        }
+    tagToXmlFieldRef 59 TmInForce=1
+    tagToXmlFieldRef 60 TxnTm=2011-03-14T03:24:28
+    tagToXmlFieldRef 110 MinQty=0
+    tagToXmlFieldRef 150 ExecTyp=5
+    tagToXmlFieldRef 151 LeavesQty=20
+    tagToXmlFieldRef 198 OrdID2=5N
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlFieldRef 207 Exch=C3
+        }
+    tagToXmlFieldRef 526 ID2=4930-O-o03111131
+    tagToXmlComponentRef Instrmt
+        {
+        tagToXmlFieldRef 541 MatDt=2011-04-01
+        }
+    tagToXmlComponentRef Trlr
+        {
+        }
+    }
+=== Output FIXML message
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <ExecRpt AvgPx="0" Ccy="USD" CumQty="0" ExecID="37236743" ExecTyp="5" HandlInst="1" ID="SOMEID" ID2="4930-O-o03111131" LastPx="0" LastQty="0" LeavesQty="20" MinQty="0" OrdID="768113" OrdID2="5N" Px="17311" Side="1" Stat="0" TmInForce="1" TxnTm="2011-03-14T03:24:28" Typ="2">
+        <Hdr SID="C1" SeqNum="1384" Snt="2011-03-14T03:24:28" TID="C2" TSub="4930"/>
+        <Instrmt Exch="C3" MatDt="2011-04-01" Sym="PL"/>
+        <OrdQty Qty="20"/>
+    </ExecRpt>
+</FIXML>
+

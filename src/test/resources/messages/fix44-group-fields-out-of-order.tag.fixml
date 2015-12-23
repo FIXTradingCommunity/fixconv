@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="4.4" xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <Order HandlInst="1" ID="ID" Side="1" TxnTm="2011-03-28T09:00:00" Typ="1">
+        <Hdr SID="SENDER" SeqNum="2" Snt="2011-03-28T09:00:00" TID="TARGET"/>
+        <PreAll Acct="acct1" ActIDSrc="1" Qty="50"/>
+        <PreAll Acct="acct2" ActIDSrc="1" Qty="150"/>
+        <Instrmt Sym="INTC"/>
+        <OrdQty Qty="200.00"/>
+    </Order>
+</FIXML>

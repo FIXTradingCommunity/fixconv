@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from the official schemas using XMLSpy -->
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-4-4">
+    <NewOrdList BidTyp="1" ID="1" TotNoOrds="1">
+        <Ord ClOrdID="1" SeqNo="1" Side="1">
+            <Instrmt Sym="IBM"/>
+            <OrdQty Qty="100"/>
+        </Ord>
+        <Ord ClOrdID="2" SeqNo="2" Side="1">
+            <Instrmt Sym="IBM"/>
+            <OrdQty Qty="200"/>
+        </Ord>
+    </NewOrdList>
+</FIXML>

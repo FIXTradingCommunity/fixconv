@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FIXML v="5.0" xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2">
+    <Order Acct="26522154" ID="123456" Px="93.25" Side="2" TxnTm="2001-09-11T14:30:47" Typ="2">
+        <Hdr PosDup="N" PosRsnd="N" SID="AFUNDMGR" Snt="2001-09-11T14:30:47" TID="ABROKER"/>
+        <Instrmt ID="459200101" Src="1" Sym="IBM">
+            <SecXML Schema="SSS">
+                <someXML xmlns="NS"/>
+            </SecXML>
+        </Instrmt>
+        <OrdQty Qty="1000"/>
+    </Order>
+</FIXML>

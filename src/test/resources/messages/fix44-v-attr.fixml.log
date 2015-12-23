@@ -1,0 +1,49 @@
+=== Input FIXML message
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- deliberately has no namespace -->
+<FIXML v="4.4">
+    <Order ID="123456" Side="2" TxnTm="2001-09-11T09:30:47-05:00" Typ="2" Px="93.25" Acct="26522154">
+        <Hdr Snt="2001-09-11T09:30:47-05:00" PosDup="N" PosRsnd="N" SeqNum="521" SID="AFUNDMGR" TID="ABROKER"/>
+        <Instrmt Sym="IBM" ID="459200101" Src="1"/>
+        <OrdQty Qty="1000"/>
+    </Order>
+</FIXML>
+
+=== Converting
+xmlToTag
+    {
+    xmlToTagMessage NewOrderSingle
+        {
+        addTag (header) 8=FIX.4.4
+        addTag (header) 9
+        addTag (header) 35=D
+        xmlToTagComponent StandardHeader
+            {
+            addTag SID 49=AFUNDMGR
+            addTag TID 56=ABROKER
+            addTag SeqNum 34=521
+            addTag PosDup 43=N
+            addTag PosRsnd 97=N
+            addTag Snt 52=20010911-14:30:47
+            }
+        addTag ID 11=123456
+        addTag Acct 1=26522154
+        xmlToTagComponent Instrument
+            {
+            addTag Sym 55=IBM
+            addTag ID 48=459200101
+            addTag Src 22=1
+            }
+        addTag Side 54=2
+        addTag TxnTm 60=20010911-14:30:47
+        xmlToTagComponent OrderQtyData
+            {
+            addTag Qty 38=1000
+            }
+        addTag Typ 40=2
+        addTag Px 44=93.25
+        addTag (trailer) 10=096
+        }
+    }
+=== Output tag=value message 1
+8=FIX.4.4\x019=160\x0135=D\x0149=AFUNDMGR\x0156=ABROKER\x0134=521\x0143=N\x0197=N\x0152=20010911-14:30:47\x0111=123456\x011=26522154\x0155=IBM\x0148=459200101\x0122=1\x0154=2\x0160=20010911-14:30:47\x0138=1000\x0140=2\x0144=93.25\x0110=096\x01
