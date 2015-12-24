@@ -2,6 +2,7 @@
 // FixConvTest.java - FIX Converter Test
 //
 // AK, 04 Apr 2011, initial version
+// AK, 24 Dec 2015, enhance extension pack handling
 //
 
 package org.fixprotocol.contrib.converter;
@@ -192,10 +193,10 @@ public static void main(String[] args)
     {
     if ( args.length == 0 )
       {
-      System.out.println("usage: FixConvTest xmlToTag FixRepository.xml file.fixml [file.tag [extMaj [extMin [extSP [extCv]]]]]");
-      System.out.println("   or: FixConvTest tagToXml FixRepository.xml file.tag [file.fixml [extMaj [extMin [extSP [extCv]]]]]");
-      System.out.println("   or: FixConvTest repair FixRepository.xml file.tag [file2.tag [extMaj [extMin [extSP [extCv]]]]]");
-      System.out.println("   or: FixConvTest pretty FixRepository.xml file.tag");
+      System.out.println("usage: FixConvTest xmlToTag FixRepository.xml file.fixml [file.tag [extMaj [extMin [extSP [extEP [extCv]]]]]]");
+      System.out.println("   or: FixConvTest tagToXml FixRepository.xml file.tag [file.fixml [extMaj [extMin [extSP [extEP [extCv]]]]]]");
+      System.out.println("   or: FixConvTest repair FixRepository.xml file.tag [file2.tag [extMaj [extMin [extSP [extEP [extCv]]]]]]");
+      System.out.println("   or: FixConvTest pretty FixRepository.xml file.tag [extMaj [extMin [extSP [extEP [extCv]]]]]");
       System.out.println("   or: FixConvTest validate file.fixml fixml-main-X-X.xsd");
       System.exit(1);
       }
@@ -210,12 +211,13 @@ public static void main(String[] args)
       String extMaj = ( args.length >= 5 ) ? args[4] : null;
       String extMin = ( args.length >= 6 ) ? args[5] : null;
       String extSP  = ( args.length >= 7 ) ? args[6] : null;
-      String extCv  = ( args.length >= 8 ) ? args[7] : null;
+      String extEP  = ( args.length >= 8 ) ? args[7] : null;
+      String extCv  = ( args.length >= 9 ) ? args[8] : null;
       System.out.println("=== Input FIXML message");
       System.out.println(s2);
       Document d2 = strToDoc(s2);
       System.out.println("=== Converting");
-      List<FixTagMessage> ftms = fc.xmlToTag(d2, extMaj, extMin, extSP, extCv);
+      List<FixTagMessage> ftms = fc.xmlToTag(d2, extMaj, extMin, extSP, extEP, extCv);
       int i = 1;
       for ( FixTagMessage ftm : ftms )
         {
@@ -241,15 +243,16 @@ public static void main(String[] args)
       String extMaj = ( args.length >= 5 ) ? args[4] : null;
       String extMin = ( args.length >= 6 ) ? args[5] : null;
       String extSP  = ( args.length >= 7 ) ? args[6] : null;
-      String extCv  = ( args.length >= 8 ) ? args[7] : null;
-      FixTagMessage ftm = fc.bytesToFixTagMessage(b, extMaj, extMin, extSP, extCv);
+      String extEP  = ( args.length >= 8 ) ? args[7] : null;
+      String extCv  = ( args.length >= 9 ) ? args[8] : null;
+      FixTagMessage ftm = fc.bytesToFixTagMessage(b, extMaj, extMin, extSP, extEP, extCv);
       System.out.println("=== Input tag=value message");
       System.out.println(ftm.toString());
       ftm.repair();
       System.out.println("=== Input tag=value message (repaired)");
       System.out.println(ftm.toString());
       System.out.println("=== Converting");
-      Document d2 = fc.tagToXml(ftm, extMaj, extMin, extSP, extCv);
+      Document d2 = fc.tagToXml(ftm, extMaj, extMin, extSP, extEP, extCv);
       String s2 = docToStr(d2);
       System.out.println("=== Output FIXML message");
       System.out.println(s2);
@@ -263,11 +266,12 @@ public static void main(String[] args)
       FixConv.loggingEnabled = true;
       FixConv fc = new FixConv(d);
       byte[] b = sanitizeFix( readBinaryFile(args[2]) );
-      String extMaj = ( args.length >= 5 ) ? args[3] : null;
-      String extMin = ( args.length >= 6 ) ? args[4] : null;
-      String extSP  = ( args.length >= 7 ) ? args[5] : null;
-      String extCv  = ( args.length >= 8 ) ? args[6] : null;
-      FixTagMessage ftm = fc.bytesToFixTagMessage(b, extMaj, extMin, extSP, extCv);
+      String extMaj = ( args.length >= 5 ) ? args[4] : null;
+      String extMin = ( args.length >= 6 ) ? args[5] : null;
+      String extSP  = ( args.length >= 7 ) ? args[6] : null;
+      String extEP  = ( args.length >= 8 ) ? args[7] : null;
+      String extCv  = ( args.length >= 9 ) ? args[8] : null;
+      FixTagMessage ftm = fc.bytesToFixTagMessage(b, extMaj, extMin, extSP, extEP, extCv);
       System.out.println("=== Input tag=value message");
       System.out.println(ftm.toString());
       ftm.repair();
@@ -283,14 +287,15 @@ public static void main(String[] args)
       FixConv.loggingEnabled = true;
       FixConv fc = new FixConv(d);
       byte[] b = sanitizeFix( readBinaryFile(args[2]) );
-      String extMaj = ( args.length >= 5 ) ? args[3] : null;
-      String extMin = ( args.length >= 6 ) ? args[4] : null;
-      String extSP  = ( args.length >= 7 ) ? args[5] : null;
-      String extCv  = ( args.length >= 8 ) ? args[6] : null;
-      FixTagMessage ftm = fc.bytesToFixTagMessage(b, extMaj, extMin, extSP, extCv);
+      String extMaj = ( args.length >= 4 ) ? args[3] : null;
+      String extMin = ( args.length >= 5 ) ? args[4] : null;
+      String extSP  = ( args.length >= 6 ) ? args[5] : null;
+      String extEP  = ( args.length >= 7 ) ? args[6] : null;
+      String extCv  = ( args.length >= 8 ) ? args[7] : null;
+      FixTagMessage ftm = fc.bytesToFixTagMessage(b, extMaj, extMin, extSP, extEP, extCv);
       System.out.println("=== Input tag=value message");
       System.out.println(ftm.toString());
-      String pretty = fc.fixTagMessageToPretty(ftm, extMaj, extMin, extSP, extCv);
+      String pretty = fc.fixTagMessageToPretty(ftm, extMaj, extMin, extSP, extEP, extCv);
       System.out.println("=== Output prettified message");
       System.out.println(pretty);
       }

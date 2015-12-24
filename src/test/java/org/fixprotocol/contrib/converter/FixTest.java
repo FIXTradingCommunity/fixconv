@@ -2,6 +2,7 @@
 // FixTest.java - FIX Converter
 //
 // AK, 20 Dec 2015, initial version
+// AK, 24 Dec 2015, enhance extension pack handling
 //
 
 package org.fixprotocol.contrib.converter;
@@ -107,9 +108,9 @@ public void tagToXml(String fn)
   {
   byte[] tag = readBinaryResource("messages/" + fn + ".tag");
   tag = FixConvTest.sanitizeFix( tag );
-  FixTagMessage ftm = fc.bytesToFixTagMessage(tag, null, null, null, null);
+  FixTagMessage ftm = fc.bytesToFixTagMessage(tag, null, null, null, null, null);
   ftm.repair();
-  Document d = fc.tagToXml(ftm, null, null, null, null);
+  Document d = fc.tagToXml(ftm, null, null, null, null, null);
   String xml = docToStr(d);    
   String xmlExpected = readTextResourceUTF8("messages/" + fn + ".tag.fixml");
   assertEquals("converting " + fn + " from tag=value to XML", xmlExpected, xml);
@@ -167,7 +168,7 @@ public void xmlToTag(String fn)
   {
   String xml = readTextResourceUTF8("messages/" + fn + ".fixml");
   Document d = strToDoc(xml);
-  List<FixTagMessage> ftms = fc.xmlToTag(d, null, null, null, null);
+  List<FixTagMessage> ftms = fc.xmlToTag(d, null, null, null, null, null);
   int i = 1;
   for ( FixTagMessage ftm : ftms )
     {

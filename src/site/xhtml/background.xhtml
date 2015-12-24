@@ -31,6 +31,21 @@ to drive FIX tools, such as this FIX Converter (and indeed, an earlier attempt
 to write a FIX Converter driven off of the FIXML XSDs failed when it was
 realised that information relating to repeating groups and other areas is
 missing).</p>
+
+<p>In the Unified FIX Repository, we observe and expect the
+<code>version</code> element be the combination of major version,
+minor version, optional service pack and optional extension pack,
+and thus to align with these examples :-</p>
+<ul>
+  <li><code>FIX.4.4</code></li>
+  <li><code>FIX.5.0</code></li>
+  <li><code>FIX.5.0SP1</code></li>
+  <li><code>FIX.5.0SP2_EP196</code></li>
+</ul>
+
+<p>The <code>customVersion</code> element is freeform, and sometimes when
+displaying diagnostic information, the FIX converter presents the full
+version as <code>version/customVersion</code>.</p>
 <!--...e-->
 <!--...sFIX representations:4:-->
 <h2>FIX representations</h2>

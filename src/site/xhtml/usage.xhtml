@@ -37,15 +37,16 @@ FixTagMessage ftm = fc.bytesToFixTagMessage(
   extMaj, // eg: "4", "5", or null
   extMin, // eg: "4", "0", or null
   extSP,  // eg: "SP1", "SP2", or null
+  extEP,  // eg: "EP196", or null
   extCv   // eg: "jpmc-to-lse-custom-version", or null
   );
 </pre>
 
 <p>If the tags (<code>BeginString</code> (8), then possibly the
-<code>ApplVerID</code> (1128) and then possibly the
-<code>CstmApplVerID</code> (1129) tag) identify a version of FIX
-that is not present in the repository, then the FIX message may
-not be decoded properly.</p>
+<code>ApplVerID</code> (1128) tag, possibly the <code>AppExtID</code> (1156)
+tag, and then possibly the <code>CstmApplVerID</code> (1129) tag)
+identify a version of FIX that is not present in the repository,
+then the FIX message may not be decoded properly.</p>
 
 <p>If the message doesn't fully define its version, and non-null
 external values are passed in, then these are used.</p>
@@ -94,6 +95,7 @@ Document d = fc.tagToXml(
   extMaj, // eg: "4", "5", or null
   extMin, // eg: "4", "0", or null
   extSP,  // eg: "SP1", "SP2", or null
+  extEP,  // eg: "EP196", or null
   extCv   // eg: "jpmc-to-lse-custom-version", or null
   );
 </pre>
@@ -107,6 +109,8 @@ including :-</p>
   <li>the third tag must be <code>MsgType</code> (35)</li>
   <li>for FIX.5.0 onwards, the <code>ApplVerID</code> (1128) tag should
       define the FIX application version, including service pack number</li>
+  <li>for FIX.5.0 onwards, the <code>ApplExtID</code> (1156) tag can be used
+      to define the extension pack.</li>
   <li>for FIX.5.0 onwards, if a bi-laterially agreed custom version of FIX is
       being spoken, the <code>CstmApplVerID</code> (1129) tag must identify
       that version, and that same ID must match the <code>customVersion</code>
@@ -119,6 +123,8 @@ including :-</p>
 <p>For FIX.5.0 onwards, if the <code>ApplVerID</code> tag is not found,
 the <code>extMaj</code> and <code>extMin</code> values are used
 (possibly with the <code>extSP</code> appended, if defined).
+If the <code>ApplExtID</code> tag is not found, the
+<code>extEP</code> is used if present.
 If the <code>CstmApplVerID</code> tag is not found, the
 <code>extCv</code> is used if present.
 If these external values are needed, and are not supplied, then an
@@ -133,7 +139,8 @@ exception is thrown.</p>
 </ul>
 
 <p>If the input tag=value message has the <code>ApplExtID</code> (1156) tag
-then the resulting FIXML message has the <code>xv</code> attribute.</p>
+or if <code>extEP</code> was supplied, then the resulting FIXML message has
+the <code>xv</code> attribute.</p>
 
 <p>Certain tags in the <code>FixTagMessage</code> must be in the places
 described by the rules above.
@@ -152,6 +159,7 @@ String s = fc.fixTagMessageToPretty(
   extMaj, // eg: "4", "5", or null
   extMin, // eg: "4", "0", or null
   extSP,  // eg: "SP1", "SP2", or null
+  extEP,  // eg: "EP196", or null
   extCv   // eg: "jpmc-to-lse-custom-version", or null
   );
 </pre>
@@ -176,6 +184,7 @@ List&lt;FixTagMessage&gt; ftms = fc.xmlToTag(
   extMaj, // eg: "4", "5", or null
   extMin, // eg: "4", "0", or null
   extSP,  // eg: "SP1", "SP2", or null
+  extEP,  // eg: "EP196", or null
   extCv   // eg: "jpmc-to-lse-custom-version", or null
   );
 </pre>
@@ -228,6 +237,16 @@ external version information passed into the <code>xmlToTag</code> method.</p>
 <p>Apologies for the above, but I didn't define the standard.
 This is an attempt to try to do the right thing by default.</p>
 
+<p>The extension pack algorithm is as follows :-</p>
+<pre>
+  if FIXML xv attribute present
+    use it
+  else if extEP supplied
+    use it
+  else
+    no extension pack
+</pre>
+
 <p>The custom version algorithm is as follows :-</p>
 <pre>
   if FIXML cv attribute present
@@ -238,8 +257,9 @@ This is an attempt to try to do the right thing by default.</p>
     normal, non-customised version
 </pre>
 
-<p>If the input FIXML message has the <code>xv</code> attribute, then the
-resulting tag=value message will have the <code>AppExtID</code> (1156) tag.</p>
+<p>If the input FIXML message has the <code>xv</code> attribute, or if
+<code>extEP</code> is supplied, then the resulting tag=value message will
+have the <code>AppExtID</code> (1156) tag.</p>
 
 <p>You may have noticed the result is a <b>list</b> of tag=value messages.
 This is because FIXML documents may contain a Batch of messages, eg:</p>

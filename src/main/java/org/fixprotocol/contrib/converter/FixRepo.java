@@ -2,6 +2,7 @@
 // FixRepo.java - Representation of FIX Repository
 //
 // AK, 13 Jun 2011, initial version
+// AK, 24 Dec 2015, enhance extension pack handling
 //
 
 package org.fixprotocol.contrib.converter;
@@ -59,7 +60,7 @@ public String mapApplVerIDEnumToVersion(String applVerIDEnum)
   protected int edition;
 
   protected Map<String,FixVersion> versions = new HashMap<String,FixVersion>();
-    // String key is version/customVersion
+    // String key is version+extPack+"/"+customVersion
 
   // Parsing the FIX Repository
   // General rules
@@ -346,7 +347,7 @@ protected void parseMessages(String context, Element e, FixVersion v)
 protected FixVersion parseVersion(
   String context,
   Element e,
-  String version,      // eg: "FIX.4.4", "FIX.5.0SP1", etc..
+  String version,      // eg: "FIX.4.4", "FIX.5.0SP1", "FIX.5.0SP2_EP196", etc..
   String customVersion // eg: "", "CME"
   )
   throws FixConvException
@@ -354,8 +355,18 @@ protected FixVersion parseVersion(
   String beginString = version.startsWith("FIX.4.")
     ? version.substring(0,7) // eg: "FIX.4.4"
     : "FIXT.1.1";
+
+  // the version in the FixRepository.xml can include extension pack
+  int iSplit;
+  String extPack = "";
+  if ( (iSplit = version.indexOf("_")) != -1 )
+    {
+    extPack = version.substring(iSplit);
+    version = version.substring(0, iSplit);
+    }
+
   String applVerIDEnum = versionToApplVerIDEnum.get(version);
-  FixVersion v = new FixVersion(version, customVersion, beginString, applVerIDEnum);
+  FixVersion v = new FixVersion(version, extPack, customVersion, beginString, applVerIDEnum);
   NodeList nl = e.getChildNodes();
   for ( int i = 0; i < nl.getLength(); i++ )
     {
@@ -400,7 +411,7 @@ protected void parseRepo(String context, Element e)
       if ( e2name.equals("fix") )
         {
         String context2 = context+"/fix";
-        String version = parseAttribute(context2, e2, "version"); // eg: "FIX.4.4", "FIX.5.0SP1"
+        String version = parseAttribute(context2, e2, "version"); // eg: "FIX.4.4", "FIX.5.0SP1", "FIX.5.0SP2_EP196"
         String customVersion = parseAttribute(context2, e2, "customVersion", "");
         context2 += "[@version='"+version+"' and @customVersion='"+customVersion+"']";
         String fixmlStr = parseAttribute(context2, e2, "fixml");

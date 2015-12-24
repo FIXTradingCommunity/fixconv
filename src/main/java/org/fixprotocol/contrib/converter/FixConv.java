@@ -2,6 +2,8 @@
 // FixConv.java - FIX Converter
 //
 // AK, 13 May 2011, initial version
+// AK, 24 Dec 2015, enhance extension pack handling
+//                  handle StandardHeader <BaseHeader/> as well as <Hdr/>
 //
 
 package org.fixprotocol.contrib.converter;
@@ -476,7 +478,8 @@ public FixConv(Document d)
 
   public static final String NS_STARTS_WITH = "http://www.fixprotocol.org/FIXML-";
   public static final String HDR_NAME = "StandardHeader";
-  public static final String HDR_ABBRNAME = "Hdr";
+  public static final String HDR_ABBRNAME_OLD = "Hdr";
+  public static final String HDR_ABBRNAME_NEW = "BaseHeader";
 
   // Conversion from FIXML to tag=value
 
@@ -788,21 +791,17 @@ public void xmlToTagElement(
           String val = e.getAttribute(abbrName);
           if ( val.equals("") )
             {
-            if (e.getLocalName().equals(HDR_ABBRNAME) && eBatchHdr != null )
-              // Cope with the message has a Hdr, but doesn't define a field
-              // but there is a Batch Hdr that does, which we need to inherit
+            String ln = e.getLocalName();
+            if ( (ln.equals(HDR_ABBRNAME_OLD)||ln.equals(HDR_ABBRNAME_NEW)) && eBatchHdr != null )
+              // Cope with the message has a StandardHeader, but doesn't define a field
+              // but there is a Batch StandardHeader that does, which we need to inherit
               val = eBatchHdr.getAttribute(f.abbrName);
             else if ( f.id == FixTag.ID_ApplVerID && v.applVerIDEnum != null )
-              // Ensure the message has an ApplVerID
+              // Ensure the message has an ApplVerID, if appropriate
               val = v.applVerIDEnum;
-            else if ( f.id == FixTag.ID_ApplExtID )
+            else if ( f.id == FixTag.ID_ApplExtID && ! v.extPack.equals("") )
               // Ensure the message has an ApplExtID, if appropriate
-              {
-              Element eFIXML = e;
-              while ( ! eFIXML.getLocalName().equals("FIXML") )
-                eFIXML = (Element) eFIXML.getParentNode();
-              val = eFIXML.getAttribute("xv");
-              }
+              val = v.extPack.substring(3); // skip past "_EP"
             else if ( f.id == FixTag.ID_CstmApplVerID && ! v.customVersion.equals("") )
               // Ensure the message has an CstmApplVerID, if appropriate
               val = v.customVersion;
@@ -858,8 +857,8 @@ public void xmlToTagElement(
           e2 = nextElement(e2);
           }
         else if ( c.name.equals(HDR_NAME) && eBatchHdr != null )
-          // Cope with the case there is a Batch Hdr,
-          // but a nested message does not have a Hdr
+          // Cope with the case there is a Batch StandardHeader,
+          // but a nested message does not have a StandardHeader
           xmlToTagComponent(eBatchHdr, null, ftm, c, m, v);
         }
       }
@@ -952,7 +951,14 @@ public FixTagMessage xmlToTagMessage(
 //...e
 //...sxmlToTag:2:
 //...sversionOfFIXML:2:
-protected String versionOfFIXML(Element e, String extMaj, String extMin, String extSP, String extCv)
+protected String versionOfFIXML(
+  Element e,
+  String extMaj,
+  String extMin,
+  String extSP,
+  String extEP,
+  String extCv
+  )
   throws FixConvException
   {
   // Look at the namespace
@@ -984,6 +990,7 @@ protected String versionOfFIXML(Element e, String extMaj, String extMin, String 
   String vStr = e.getAttribute("v"); // eg: "4.4", "FIX.5.0", or "" 
   if ( ! vStr.equals("") && ! vStr.startsWith("FIX.") )
     vStr = "FIX."+vStr; // now "FIX.4.4", "FIX.5.0SP1", or ""
+  String xvStr = e.getAttribute("xv"); // extension pack, eg: "196" or ""
   String cvStr = e.getAttribute("cv"); // custom verson name, eg: "CME1", or ""
 
   String version;
@@ -1037,6 +1044,15 @@ protected String versionOfFIXML(Element e, String extMaj, String extMin, String 
       xmlToTagError("inconsistent version: namespace says "+ns+", v attribute says "+vStr);
     }
 
+  // calculation extension pack, from xv=, or supplied
+  String extPack;
+  if ( ! xvStr.equals("") )
+    extPack = "_EP" + xvStr;
+  else if ( extEP != null ) 
+    extPack = "_" + extEP;
+  else
+    extPack = "";
+
   String customVersion;
   if ( ! cvStr.equals("") )
     customVersion = cvStr;
@@ -1045,7 +1061,7 @@ protected String versionOfFIXML(Element e, String extMaj, String extMin, String 
   else
     customVersion = "";
 
-  return version+"/"+customVersion;
+  return version+extPack+"/"+customVersion;
   }
 //...e
 
@@ -1054,6 +1070,7 @@ public List<FixTagMessage> xmlToTag(
   String extMaj, // eg: "5", or null
   String extMin, // eg: "0", or null
   String extSP,  // eg: "SP2", or null
+  String extEP,  // eg: "EP196", or null
   String extCv   // eg: "mycustomversion", or null
   )
   throws FixConvException
@@ -1066,7 +1083,7 @@ public List<FixTagMessage> xmlToTag(
   if ( ! e.getLocalName().equals("FIXML") )
     xmlToTagError("root element should be FIXML");
 
-  String version = versionOfFIXML(e, extMaj, extMin, extSP, extCv);
+  String version = versionOfFIXML(e, extMaj, extMin, extSP, extEP, extCv);
   FixVersion v = repo.getVersion(version);
   if ( v == null )
     xmlToTagError("don't understand FIX version "+version);
@@ -1142,11 +1159,14 @@ public FixTagMessage bytesToFixTagMessage(
   String extMaj, // eg: "5", or null
   String extMin, // eg: "0", or null
   String extSP,  // eg: "SP2", or null
+  String extEP,  // eg: "EP196", or null
   String extCv   // eg: "mycustomversion", or null
   )
   throws FixConvException
   {
   String version = null;
+  String extPack = (extEP!=null)?("_"+extEP):"";
+  String customVersion = (extCv!=null)?extCv:"";
   FixVersion v = null; // don't know the version yet
   FixTagMessage ftm = new FixTagMessage();
   int p = 0;
@@ -1189,9 +1209,9 @@ public FixTagMessage bytesToFixTagMessage(
           {
           String beginString = new String(value, "US-ASCII");
           if ( beginString.startsWith("FIX.") )
-            v = repo.getVersion(beginString+"/"+(extCv!=null?extCv:""));
+            v = repo.getVersion(beginString+extPack+"/"+customVersion);
           else if ( extMaj != null && extMin != null )
-            v = repo.getVersion(extMaj+"."+extMin+(extSP!=null?extSP:"")+"/"+(extCv!=null?extCv:""));
+            v = repo.getVersion(extMaj+"."+extMin+(extSP!=null?extSP:"")+extPack+"/"+customVersion);
           else
             v = null;
           // v could still be null at this point
@@ -1203,7 +1223,17 @@ public FixTagMessage bytesToFixTagMessage(
           version = repo.mapApplVerIDEnumToVersion(applVerIDEnum);
           if ( version == null )
             throw new FixConvException("don't know how to map ApplVerID field of "+applVerIDEnum+" to a FIX version");
-          v = repo.getVersion(version+"/"+(extCv!=null?extCv:""));
+          v = repo.getVersion(version+"/"+customVersion);
+          // v could still be null at this point
+          }
+        else if ( id == FixTag.ID_ApplExtID )
+          // This refines our knowledge to include the extension pack
+          {
+          String applExtID = new String(value, "US-ASCII");
+          if ( version == null )
+            throw new FixConvException("got ApplExtID field, but haven't had ApplVerID field yet");
+          extPack = ( "_EP" + applExtID );
+          v = repo.getVersion(version+extPack+"/"+customVersion);
           // v could still be null at this point
           }
         else if ( id == FixTag.ID_CstmApplVerID )
@@ -1211,10 +1241,10 @@ public FixTagMessage bytesToFixTagMessage(
           {
           if ( version == null )
             throw new FixConvException("got CstmApplVerID field, but haven't had ApplVerID field yet");
-          String cstmApplVerID = new String(value, "US-ASCII");
-          v = repo.getVersion(version+"/"+cstmApplVerID);
+          customVersion = new String(value, "US-ASCII");
+          v = repo.getVersion(version+extPack+"/"+customVersion);
           if ( v == null )
-            throw new FixConvException("FIX version "+version+"/"+cstmApplVerID+" not in the FIX Repository");
+            throw new FixConvException("FIX version "+version+extPack+"/"+customVersion+" not in the FIX Repository");
           }
         }
       catch ( UnsupportedEncodingException uee )
@@ -1249,11 +1279,14 @@ public String fixTagMessageToPretty(
   String extMaj, // eg: "5", or null
   String extMin, // eg: "0", or null
   String extSP,  // eg: "SP2", or null
+  String extEP,  // eg: "EP196", or null
   String extCv   // eg: "mycustomversion", or null
   )
   throws FixConvException
   {
   String version = null;
+  String extPack = (extEP!=null)?("_"+extEP):"";
+  String customVersion = (extCv!=null)?extCv:"";
   FixVersion v = null; // don't know the version yet
   StringBuilder sb = new StringBuilder();
   for ( int i = 0; i < ftm.tags.size(); i++ )
@@ -1278,9 +1311,9 @@ public String fixTagMessageToPretty(
       {
       String beginString = t.getValue();
       if ( beginString.startsWith("FIX.") )
-        v = repo.getVersion(beginString+"/"+(extCv!=null?extCv:""));
+        v = repo.getVersion(beginString+extPack+"/"+customVersion);
       else if ( extMaj != null && extMin != null )
-        v = repo.getVersion(extMaj+"."+extMin+(extSP!=null?extSP:"")+"/"+(extCv!=null?extCv:""));
+        v = repo.getVersion(extMaj+"."+extMin+(extSP!=null?extSP:"")+extPack+"/"+customVersion);
       else
         v = null;
       // v could still be null at this point
@@ -1292,7 +1325,17 @@ public String fixTagMessageToPretty(
       version = repo.mapApplVerIDEnumToVersion(applVerIDEnum);
       if ( version == null )
         throw new FixConvException("don't know how to map ApplVerID field of "+applVerIDEnum+" to a FIX version");
-      v = repo.getVersion(version+"/"+(extCv!=null?extCv:""));
+      v = repo.getVersion(version+extPack+"/"+customVersion);
+      // v could still be null at this point
+      }
+    else if ( id == FixTag.ID_ApplExtID )
+      // This refines our knowledge to include the extension pack
+      {
+      String applExtID = t.getValue();
+      if ( version == null )
+        throw new FixConvException("got ApplExtID field, but haven't had ApplVerID field yet");
+      extPack = ( "_EP" + applExtID );
+      v = repo.getVersion(version+extPack+"/"+customVersion);
       // v could still be null at this point
       }
     else if ( id == FixTag.ID_CstmApplVerID )
@@ -1300,10 +1343,10 @@ public String fixTagMessageToPretty(
       {
       if ( version == null )
         throw new FixConvException("got CstmApplVerID field, but haven't had ApplVerID field yet");
-      String cstmApplVerID = t.getValue();
-      v = repo.getVersion(version+"/"+cstmApplVerID);
+      customVersion = t.getValue();
+      v = repo.getVersion(version+extPack+"/"+customVersion);
       if ( v == null )
-        throw new FixConvException("FIX version "+version+"/"+cstmApplVerID+" not in the FIX Repository");
+        throw new FixConvException("FIX version "+version+extPack+"/"+customVersion+" not in the FIX Repository");
       }
     }
   return sb.toString();
@@ -1653,6 +1696,7 @@ public Document tagToXml(
   String extMaj, // eg: "5", or null
   String extMin, // eg: "0", or null
   String extSP,  // eg: "SP2", or null
+  String extEP,  // eg: "EP196", or null
   String extCv   // eg: "mycustomversion", or null
   )
   throws FixConvException
@@ -1723,16 +1767,22 @@ public Document tagToXml(
         version += extSP;
       }
 
+    String extPack = "";
+    if ( applExtID != null )
+      extPack = "_EP" + applExtID;
+    else if ( extEP != null )
+      extPack = ( "_" + extEP );
+
     if ( customVersion.equals("") )
       if ( extCv != null )
         customVersion = extCv;
 
-    FixVersion v = repo.getVersion(version+"/"+customVersion);
+    FixVersion v = repo.getVersion(version+extPack+"/"+customVersion);
     if ( v == null )
-      throw new FixConvException("message is FIX version "+version+"/"+customVersion+" but this isn't in the repository");
+      throw new FixConvException("message is FIX version "+version+extPack+"/"+customVersion+" but this isn't in the repository");
 
     // Namespace
-    // 5.0SP3 onwards only has major version in namspace
+    // 5.0SP3 onwards only has major version in namespace
     String ns = NS_STARTS_WITH+version.substring(4,5);
     if ( version.startsWith("FIX.4.") ||
          version.equals("FIX.5.0"   ) ||
@@ -1751,15 +1801,15 @@ public Document tagToXml(
     Document d = db.newDocument();
     Element eRoot = d.createElementNS(ns, "FIXML");
     eRoot.setAttribute("v", vStr);
-    if ( applExtID != null )
-      eRoot.setAttribute("xv", applExtID);
+    if ( ! extPack.equals("") )
+      eRoot.setAttribute("xv", extPack.substring(3));
     if ( ! customVersion.equals("") )
       eRoot.setAttribute("cv", customVersion);
     d.appendChild(eRoot);
 
     FixMessage m = v.messagesByMsgType.get(msgType);
     if ( m == null )
-      throw new FixConvException("message with MsgType="+msgType+" not in FIX version "+version+"/"+customVersion);
+      throw new FixConvException("message with MsgType="+msgType+" not in FIX version "+version+extPack+"/"+customVersion);
 
     // Message element
     Element eMsg = d.createElementNS(ns, m.abbrName);
